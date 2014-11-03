@@ -1,0 +1,58 @@
+#################
+## openFrameworks
+#################
+  
+
+*/bin/*
+!*/bin/data
+*/bin/data/screenshots/*
+[Bb]uild/
+[Oo]bj/
+*.o
+[Dd]ebug*/
+[Rr]elease*/
+*.mode*
+*.app/
+*.pyc
+*.log
+  
+#################
+## Code::Blocks
+#################
+  
+*.depend
+*.layout
+*.cbp
+*.workspace
+
+############
+## Windows
+############
+
+Thumbs.db
+Desktop.ini
+*.exe
+*.dll
+
+
+############
+## OSX
+############
+.DS_Store
+
+
+############
+## Xcode
+############
+*.pbxuser
+*.perspectivev3
+xcuserdata
+xcshareddata
+*.xcworkspace
+build
+*.app
+*.a
+
+
+
+*.so
