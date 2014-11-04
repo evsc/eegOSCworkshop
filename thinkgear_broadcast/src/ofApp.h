@@ -46,7 +46,14 @@ class ofApp : public ofBaseApp{
         unsigned int tgAttention;
         unsigned int tgMeditation;
 
-        vector<float> attentionV;
+        unsigned int tgDelta;      // 100000 / 1500000 . 0.5-2.75hz
+        unsigned int tgTheta;      // 300000 / 600000 . 3.5-6.75hz
+        unsigned int tgLowAlpha;   // 2500 / 75000 . 7.5-9.25hz
+        unsigned int tgHighAlpha;  // 2500 / 150000 . 10-11.75hz
+        unsigned int tgLowBeta;    // 1500 / 60000 . 13-16.75hz
+        unsigned int tgHighBeta;   // 2500 / 60000 . 18-29.75hz
+        unsigned int tgLowGamma;   // 5000 / 300000 . 31-39.75hz
+        unsigned int tgMidGamma;   // 5000 / 300000 . 41-49.75hz
     
 
         // GUI
@@ -61,7 +68,27 @@ class ofApp : public ofBaseApp{
 
         void guiEvent(ofxUIEventArgs &e);
 
+        ofxUILabel *attentionLabel;
         ofxUIMovingGraph *attentionGraph;
+        ofxUILabel *meditationLabel;
+        ofxUIMovingGraph *meditationGraph;
+
+        ofxUILabel *deltaLabel;
+        ofxUIMovingGraph *deltaGraph;
+        ofxUILabel *thetaLabel;
+        ofxUIMovingGraph *thetaGraph;
+        ofxUILabel *lowAlphaLabel;
+        ofxUIMovingGraph *lowAlphaGraph;
+        ofxUILabel *highAlphaLabel;
+        ofxUIMovingGraph *highAlphaGraph;
+        ofxUILabel *lowBetaLabel;
+        ofxUIMovingGraph *lowBetaGraph;
+        ofxUILabel *highBetaLabel;
+        ofxUIMovingGraph *highBetaGraph;
+        ofxUILabel *lowGammaLabel;
+        ofxUIMovingGraph *lowGammaGraph;
+        ofxUILabel *midGammaLabel;
+        ofxUIMovingGraph *midGammaGraph;
 
     private:
 
