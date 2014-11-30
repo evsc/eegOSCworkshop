@@ -9,51 +9,38 @@ Recording of electrical activity along the scalp
 </p>
 
 
-## Neurons
+## Electricity on my mind
 
-Electricity on my mind. 
-Electric impulses 
-
-<p align="center">
-	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/Berger_EEG.png"/>
-</p>
-
-
-
-## EEG History
-
-*1875, 1890* - EEG activity of animals  
-*1924* -first human EEG, Hans Berger named EEG  
-*1937* - stages of sleep  
+Neurons, electric impulses 
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/neuron.png"/>
 </p>
 
 
+## EEG History
+
+year | 
+-- | --
+**1875, 1890** | EEG activity of animals  
+**1924** | first human EEG, Hans Berger named EEG  
+**1937** | stages of sleep  
+
+<p align="center">
+	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/Berger_EEG.jpg"/>
+</p>
+
+
 
 ## Brainwaves
 
-DELTA
- * < 4 Hz
- * dreamless sleep
-
-THETA
- * 4-7 Hz
- * drowsy, dreams
-
-ALPHA
- * 7-14 Hz
- * relaxed focus, meditation
-
-BETA
- * 14-30 Hz
- * active thinking
-
-GAMMA
- * 30-120 Hz
- * hyper active
-
+WAVE | FREQ | STATE
+-- | -- | --
+**GAMMA** | 30-120 Hz | hyper active
+**BETA** | 14-30 Hz | active thinking
+**ALPHA** | 7-14 Hz | relaxed focus, meditation
+**THETA** | 4-7 Hz | drowsy, dreams
+**DELTA** | < 4 Hz | dreamless sleep
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/Brain-Waves-Graph-1024x827.jpg"/>
@@ -64,10 +51,10 @@ GAMMA
 
 ## Measuring the Brain
 
-* *CT* - X-Ray Computed Tomography
-* *PET* - Position Emission Tomography
-* *MRI / fMRI* - (Functional) Magnetic Resonance Imaging
-* *MEG* - Magneto Encephalo Graphy
+* **CT** - X-Ray Computed Tomography
+* **PET** - Position Emission Tomography
+* **MRI / fMRI** - (Functional) Magnetic Resonance Imaging
+* **MEG** - Magneto Encephalo Graphy
 
 
 
@@ -75,12 +62,12 @@ GAMMA
 
 ## Brain Computer Interfaces
 
-* EPOC by Emotiv System
-* BrainBand by MyndPlay
-* MindWave by Neurosky
-* Muse by InteraXon
-* Open BCI
-* ModularEEG
+* [EPOC](https://emotiv.com/epoc.php) by Emotiv System
+* BrainBand by [MyndPlay](http://myndplay.com/)
+* [MindWave](http://store.neurosky.com/products/mindwave-1) by Neurosky
+* [Muse](http://www.choosemuse.com/) by InteraXon
+* [Open BCI](http://openbci.com/)
+* [ModularEEG](http://openeeg.sourceforge.net/doc/modeeg/modeeg.html)
 
 ## Sensors
 
@@ -105,6 +92,10 @@ dry, wet
  5. Analog Digital Conversion (256-512 Hz, up to 20kHz)
 
 
+<p align="center">
+	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/circuitry.png"/>
+</p>
+
 
 
 
@@ -113,7 +104,7 @@ dry, wet
 
 # Application
 
-## EEG in Nuerological Diagnostic
+## EEG in Neurological Diagnostic
 
  * Epilepsy
  * Coma
@@ -125,15 +116,15 @@ dry, wet
 
 ## Projects 
 
- * George Khut + James Brown "ThetaLab" (2013)
- * Jody Xiong "Mind Art" 
- * Lisa Park "Eunoia" (2013)
- * Alvin Lucier "Music For Solo Performer" (1965) 
- * Varvara Guljajeva, Mar Canet and Sebastian Mealla - "NeuroKnitting" 
- * Eduardo Miranda "Activating Memory"
- * Mats Sivertsen "subConch" 
- * Ion Popian "Mental Fabrication"
- * Masaki Batoh "Brain Pulse Music Machine"
+ * George Khut + James Brown [ThetaLab](http://georgekhut.com/2013/07/thetalab-creative-neurofeedback-june-2013/) (2013)
+ * Jody Xiong [Mind Art](http://thecreatorsproject.vice.com/blog/this-art-project-lets-anyone-paint-with-brainwaves)
+ * Lisa Park [Eunoia](http://thelisapark.com/#/eunoia) (2013)
+ * Alvin Lucier [Music For Solo Performer](https://www.youtube.com/watch?v=bIPU2ynqy2Y) (1965) 
+ * Varvara Guljajeva, Mar Canet and Sebastian Mealla - [NeuroKnitting](http://www.knitic.com/neuro/) 
+ * Eduardo Miranda [Activating Memory](https://vimeo.com/89601884)
+ * Mats Sivertsen [subConch](http://www.mats-sivertsen.net/subconch.html) (2013)
+ * Ion Popian [Mental Fabrication](http://thecreatorsproject.vice.com/blog/this-machine-turns-your-mental-map-into-an-architectural-structure) (2014)
+ * Masaki Batoh [Brain Pulse Music Machine](http://www.monsterfresh.com/2012/04/04/masaki-batoh-brain-pulse-music-machine/)
 
 
 
@@ -163,8 +154,7 @@ dry, wet
 
 
 
-What is bluetooth?
----
+# What is bluetooth?
 
 Signal
 
