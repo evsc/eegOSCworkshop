@@ -12,6 +12,7 @@ void ofApp::setup(){
 	tgBlinkStrength = 0;
 	tgAttention = 0;
 	tgMeditation = 0;
+	tgRaw = 0;
 
 	hideGUI = false;
 	setGUI1();
@@ -24,6 +25,11 @@ void ofApp::setup(){
 
 	tg.setup(devicePort, baudRate);
     tg.addEventListener(this);
+
+    // print out all serial ports
+    // tg.device.listDevices();
+    // [notice ] ofSerial: [0] = rfcomm0
+
 
 }
 
@@ -42,6 +48,7 @@ void ofApp::update(){
 
     attentionLabel->setLabel("Attention 0-100: " + ofToString(tgAttention));
     meditationLabel->setLabel("Meditation 0-100: " + ofToString(tgMeditation));
+    rawLabel->setLabel("Raw: " + ofToString(tgRaw));
     deltaLabel->setLabel("Delta 0-1500000: " + ofToString(tgDelta));
     thetaLabel->setLabel("Theta 0-600000: " + ofToString(tgTheta));
     lowAlphaLabel->setLabel("Low Alpha 0-75000: " + ofToString(tgLowAlpha));
@@ -122,11 +129,20 @@ void ofApp::setGUI2() {
 	gui2->addSpacer();
 
 	attentionGraph = gui2->addMovingGraph("ATTENTION", buffer, bufferSize, 0.0, 100.0);
-	attentionLabel = gui2->addLabel("Attention 0-100: ", OFX_UI_FONT_SMALL);
+	attentionLabel = gui2->addLabel(" ", OFX_UI_FONT_SMALL);
 
 	meditationGraph = gui2->addMovingGraph("MEDITATION", buffer, bufferSize, 0.0, 100.0);
-	meditationLabel = gui2->addLabel("Meditation 0-100: ", OFX_UI_FONT_SMALL);
+	meditationLabel = gui2->addLabel(" ", OFX_UI_FONT_SMALL);
 
+
+	int rawBufferSize = 512;
+	buffer.clear();
+    for (int i = 0; i < rawBufferSize; i++) {
+        buffer.push_back(0.0);
+    }
+
+	rawGraph = gui2->addMovingGraph("RAW", buffer, rawBufferSize, -5000, 5000);
+	rawLabel = gui2->addLabel(" ", OFX_UI_FONT_SMALL);
 
     gui2->autoSizeToFitWidgets();
 
@@ -240,6 +256,9 @@ void ofApp::onThinkgearError(ofMessage& err){
 }
 
 void ofApp::onThinkgearRaw(ofxThinkgearEventArgs& args){
+	// cout << "raw: " << args.raw << endl;
+	tgRaw = int(args.raw);
+	rawGraph->addPoint(tgRaw);
 }
 
 void ofApp::onThinkgearPower(ofxThinkgearEventArgs& args){
@@ -248,7 +267,12 @@ void ofApp::onThinkgearPower(ofxThinkgearEventArgs& args){
 
 void ofApp::onThinkgearPoorSignal(ofxThinkgearEventArgs& args){
 	tgPoorSignal = int(args.poorSignal);
-	// cout << "onThinkgearPoorSignal " << int(args.poorSignal) << endl;
+	cout << "onThinkgearPoorSignal " << int(args.poorSignal) << endl;
+}
+
+void ofApp::onThinkgearHeartRate(ofxThinkgearEventArgs& args){
+	// tgPoorSignal = int(args.poorSignal);
+	cout << "onThinkgearHeartRate " << int(args.heartRate) << endl;
 }
 
 void ofApp::onThinkgearBlinkStrength(ofxThinkgearEventArgs& args){

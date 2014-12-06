@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
         void onThinkgearRaw(ofxThinkgearEventArgs& args);
         void onThinkgearPower(ofxThinkgearEventArgs& args);
         void onThinkgearPoorSignal(ofxThinkgearEventArgs& args);
+        void onThinkgearHeartRate(ofxThinkgearEventArgs& args);
         void onThinkgearBlinkStrength(ofxThinkgearEventArgs& args);
         void onThinkgearAttention(ofxThinkgearEventArgs& args);
         void onThinkgearMeditation(ofxThinkgearEventArgs& args);
@@ -45,6 +46,7 @@ class ofApp : public ofBaseApp{
         unsigned int tgBlinkStrength;
         unsigned int tgAttention;
         unsigned int tgMeditation;
+        int tgRaw;
 
         unsigned int tgDelta;      // 100000 / 1500000 . 0.5-2.75hz
         unsigned int tgTheta;      // 300000 / 600000 . 3.5-6.75hz
@@ -72,6 +74,8 @@ class ofApp : public ofBaseApp{
         ofxUIMovingGraph *attentionGraph;
         ofxUILabel *meditationLabel;
         ofxUIMovingGraph *meditationGraph;
+        ofxUILabel *rawLabel;
+        ofxUIMovingGraph *rawGraph;
 
         ofxUILabel *deltaLabel;
         ofxUIMovingGraph *deltaGraph;
