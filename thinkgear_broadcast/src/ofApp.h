@@ -70,6 +70,7 @@ class ofApp : public ofBaseApp{
         ofxUISuperCanvas *gui2;
         ofxUISuperCanvas *gui3;
         bool hideGUI;
+        bool insertRawData;
 
         void guiEvent(ofxUIEventArgs &e);
 
