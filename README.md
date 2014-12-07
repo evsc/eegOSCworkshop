@@ -1,6 +1,5 @@
 
-EEG via OSC workshop
-===
+# EEG via OSC workshop
 
 broadcasting EEG data from MyndPlay BrainBand XL (NeuroSky chip) of ZEO bedside display via OSC and allowing multiple clients to receive and interpret the data
 
@@ -8,20 +7,26 @@ broadcasting EEG data from MyndPlay BrainBand XL (NeuroSky chip) of ZEO bedside 
 ofxThinkgear addon: https://github.com/evsc/ofxThinkgear
 
 
-OSC messages
----
+## OSC messages
 
-zeo broadcast:
+### zeo broadcast
 
 	# ZEO's 7 frequency bins fffffff
 	/slice 0. 0. 0. 0. 0. 0. 0. 
 	# ZEO's sleep state i
 	/state 0
 
+### thinkgear broadcast
+
+	... 
 
 
-ThinkGear EEG
----
+## ThinkGear EEG
+
+Myndplay BrainBandXL
+
+EEG headset, soft headband with 2 dry sensor contact points (1 single sensor) and an ear clip. Runs with ThinkGear chip, 10 hour battery, Bluetooth 4.0 up to 30m range ([Blue Creation BC127](http://www.bluecreation.com/product_info.php?products_id=38)), 512Hz sampling rate.
+
 
 EEG frequency bands  
 
@@ -35,18 +40,25 @@ EEG frequency bands
 * mid-gamma (41 - 49.75Hz)
 
 
-TODO
----
-- osc broadcaster for thinkgear
+Interpretive data
+
+* Attention (focus, concentration)
+* Meditation (relaxation)
+* eyeblink detection (only when access via ThinkGearConnector driver)
 
 
-How To (Ubuntu 14)
----
+
+# Setup (Ubuntu 14)
+
+## ThinkGear
+
+### Bluetooth connection
+
 Figure out your device's mac address by connecting to it with the Bluetooth New Device Setup.  
 
 Initial mapping of bluetooth device to serial port, see http://askubuntu.com/questions/248817/how-to-i-connect-a-raw-serial-terminal-to-a-bluetooth-connection
 
-	$ cat /etc/bluetooth/rfcomm.conf 
+	$ sudo nano /etc/bluetooth/rfcomm.conf 
 
 	rfcomm0 {
 		bind no;
@@ -55,7 +67,7 @@ Initial mapping of bluetooth device to serial port, see http://askubuntu.com/que
 		comment "brainbandxl_bluetooth";
 	}
 
-Establishing pairing to bluetooth device with the Bluetooth menu. Then map the bluetooth data to a serial port with 
+Establishing pairing to bluetooth device with the Bluetooth menu. Then map the bluetooth data to the serial port with 
 
 	$ sudo rfcomm connect 0
 
@@ -71,10 +83,14 @@ If it says
 
 then try toggeling the sensor unit on and off, and/or toggeling your computer's bluetooth on and off. 
 
+If it says
+
 	Can't create RFCOMM TTY: Address already in use
 
 stop the app and try to reconnect
 
+
+#### Screen
 
 Verify that serial data is coming in (should print out a bunch of unencoded jibberish)
 
@@ -83,6 +99,9 @@ Verify that serial data is coming in (should print out a bunch of unencoded jibb
 Note, both screen and OF app need to be run with sudo, in order to read serial data from the port. 
 
 
+
+
+### Hardware Reset
 
 In case of emergencies, these are the steps to do a hardware reset on the sensor unit:
 

@@ -48,6 +48,9 @@ class ofApp : public ofBaseApp{
         unsigned int tgMeditation;
         int tgRaw;
 
+
+        void resetDataValues();
+
         unsigned int tgDelta;      // 100000 / 1500000 . 0.5-2.75hz
         unsigned int tgTheta;      // 300000 / 600000 . 3.5-6.75hz
         unsigned int tgLowAlpha;   // 2500 / 75000 . 7.5-9.25hz
@@ -69,6 +72,8 @@ class ofApp : public ofBaseApp{
         bool hideGUI;
 
         void guiEvent(ofxUIEventArgs &e);
+
+        ofxUIMovingGraph *incomingDataGraph;
 
         ofxUILabel *attentionLabel;
         ofxUIMovingGraph *attentionGraph;
@@ -93,6 +98,21 @@ class ofApp : public ofBaseApp{
         ofxUIMovingGraph *lowGammaGraph;
         ofxUILabel *midGammaLabel;
         ofxUIMovingGraph *midGammaGraph;
+
+        // 
+        unsigned int lastDataMillis;
+        float msCounter;
+        float avgMsCounter;
+        float avgSamplingRateHz;
+        float interpolateSampling;
+        bool newData;
+        
+        float beatCounter;
+        float beat;
+        bool clearedData;
+        float clearCounter;
+        int bufferSize;
+
 
     private:
 

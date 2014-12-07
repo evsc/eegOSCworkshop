@@ -153,20 +153,3 @@ dry, wet
 
 
 
-
-# What is bluetooth?
-
-Signal
-
- * short-wavelength UHF radio waves in the ISM band from 2.4 to 2.485 GHz
- * only for short distances
-
-Protocol
-
- * there are 79 designated Bluetooth channels, with 1 MHz bandwidth (from 2402 to 2480 MHz), Bluetooth 4.0 uses 2 MHz spacing which allows for 40 channels
- * uses a radio technology called frequency-hopping spread spectrum (pseudorandom switching between frequency channels)
- * 1600 hops per secon
- * master-slace protocol
- * can connect several devices (max 7)
-
-

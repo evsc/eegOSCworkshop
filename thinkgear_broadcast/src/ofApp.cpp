@@ -3,16 +3,26 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+	cout << "setup" << endl;
+
+	ofSetFrameRate(60);
+	beatCounter = 0;
+	msCounter = 0;
+	avgMsCounter = 0;
+	avgSamplingRateHz = 0;
+	beat = 0.2;	// sample incoming Data every 20ms 
+	interpolateSampling = 0.2;
+	lastDataMillis = ofGetElapsedTimeMillis();
+	newData = false;
+	clearCounter = 1.5;
+	clearedData = false;
+	bufferSize = 100;
+
 	devicePort = "/dev/rfcomm0";
 	baudRate = 57600;
 
 
-	tgPower = 0;
-	tgPoorSignal = 0;
-	tgBlinkStrength = 0;
-	tgAttention = 0;
-	tgMeditation = 0;
-	tgRaw = 0;
+	resetDataValues();
 
 	hideGUI = false;
 	setGUI1();
@@ -29,15 +39,28 @@ void ofApp::setup(){
     // print out all serial ports
     // tg.device.listDevices();
     // [notice ] ofSerial: [0] = rfcomm0
-
+    cout << "setup" << endl;
 
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 
-	tg.update();
+	// cout << ".";
 
+	// display at what rate data comes in
+	float dt = ofGetLastFrameTime();
+	beatCounter += dt;
+
+	// clear data in case it's been a while
+	if (msCounter > clearCounter*1000 && !clearedData) {
+		clearedData = true;
+		resetDataValues();
+	}
+
+
+
+	tg.update();
 
 	// update GUI 
 	if (tg.isReady) {
@@ -46,17 +69,51 @@ void ofApp::update(){
     	connectInfo->setTextString("trying to connect ...");
     }
 
-    attentionLabel->setLabel("Attention 0-100: " + ofToString(tgAttention));
-    meditationLabel->setLabel("Meditation 0-100: " + ofToString(tgMeditation));
-    rawLabel->setLabel("Raw: " + ofToString(tgRaw));
-    deltaLabel->setLabel("Delta 0-1500000: " + ofToString(tgDelta));
-    thetaLabel->setLabel("Theta 0-600000: " + ofToString(tgTheta));
-    lowAlphaLabel->setLabel("Low Alpha 0-75000: " + ofToString(tgLowAlpha));
-    highAlphaLabel->setLabel("High Alpha 0-150000: " + ofToString(tgTheta));
-    lowBetaLabel->setLabel("Low Beta 0-60000: " + ofToString(tgTheta));
-    highBetaLabel->setLabel("High Beta 0-60000: " + ofToString(tgTheta));
-    lowGammaLabel->setLabel("Low Gamma 0-300000: " + ofToString(tgTheta));
-    midGammaLabel->setLabel("Mid Gamma 0-300000: " + ofToString(tgTheta));
+
+	
+	if (beatCounter >= beat) {
+		beatCounter -= beat;
+
+		if (newData) {
+
+	    	newData = false;
+	    	incomingDataGraph->addPoint(1);
+
+	    } else {
+	    	incomingDataGraph->addPoint(0);
+	    }
+
+	    deltaGraph->addPoint(tgDelta);
+		thetaGraph->addPoint(tgTheta);
+		lowAlphaGraph->addPoint(tgLowAlpha);
+		highAlphaGraph->addPoint(tgHighAlpha);
+		lowBetaGraph->addPoint(tgLowBeta);
+		highBetaGraph->addPoint(tgHighBeta);
+		lowGammaGraph->addPoint(tgLowGamma);
+		midGammaGraph->addPoint(tgMidGamma);	
+
+		attentionGraph->addPoint(tgAttention);
+		meditationGraph->addPoint(tgMeditation);
+
+		attentionLabel->setLabel("Attention 0-100: " + ofToString(tgAttention));
+	    meditationLabel->setLabel("Meditation 0-100: " + ofToString(tgMeditation));
+	    
+	    deltaLabel->setLabel("Delta (0.5 - 2.75Hz) 0-2000000: " + ofToString(tgDelta));
+	    thetaLabel->setLabel("Theta (3.5 - 6.75Hz) 0-2000000: " + ofToString(tgTheta));
+	    lowAlphaLabel->setLabel("Low Alpha (7.5 - 9.25Hz) 0-200000: " + ofToString(tgLowAlpha));
+	    highAlphaLabel->setLabel("High Alpha (10 - 11.75Hz) 0-200000: " + ofToString(tgHighAlpha));
+	    lowBetaLabel->setLabel("Low Beta (13 - 16.75Hz) 0-200000: " + ofToString(tgLowBeta));
+	    highBetaLabel->setLabel("High Beta (18 - 29.75Hz) 0-200000: " + ofToString(tgHighBeta));
+	    lowGammaLabel->setLabel("Low Gamma (31 - 39.75Hz) 0-100000: " + ofToString(tgLowGamma));
+	    midGammaLabel->setLabel("Mid Gamma (41 - 49.75Hz) 0-100000: " + ofToString(tgMidGamma));
+	}
+
+
+
+	rawLabel->setLabel("Raw: " + ofToString(tgRaw));
+
+    
+    
 
 }
 
@@ -91,6 +148,28 @@ void ofApp::exit() {
 }
 
 
+void ofApp::resetDataValues() {
+
+	cout << "resetDataValues() " << endl;
+
+	tgPower = 0;
+	tgPoorSignal = 0;
+	tgBlinkStrength = 0;
+	tgAttention = 0;
+	tgMeditation = 0;
+	tgRaw = 0;
+	tgDelta = 0;
+	tgTheta = 0;
+	tgLowAlpha = 0;
+	tgHighAlpha = 0;
+	tgLowBeta = 0;
+	tgHighBeta = 0;
+	tgLowGamma = 0;
+	tgMidGamma = 0;
+
+}
+
+
 void ofApp::setGUI1() {
 
 	gui1 = new ofxUISuperCanvas("THINKGEAR");
@@ -110,6 +189,26 @@ void ofApp::setGUI1() {
 	gui1->addSpacer();
     gui1->addSlider("Signal Quality 0-200", 0.0f, 255.0f, &tgPoorSignal);
 
+    gui1->addSpacer();
+    gui1->addLabel("SAMPLING RATE", OFX_UI_FONT_SMALL);
+
+
+    vector<float> buffer;
+    for (int i = 0; i < bufferSize; i++) {
+        buffer.push_back(0.0);
+    }
+
+    incomingDataGraph = gui1->addMovingGraph("DATA", buffer, bufferSize, 0.0, 1.0);
+
+	gui1->addSpacer();
+    gui1->addSlider("Avg Hz", 0.0f, 2.0f, &avgSamplingRateHz);
+
+	gui1->addSpacer();
+    gui1->addSlider("Interpolate 0-1", 0.0f, 1.0f, &interpolateSampling);
+
+	gui1->addSpacer();
+    gui1->addSlider("Clear Counter 1-10", 0.0f, 10.0f, &clearCounter);
+
 
     gui1->setPosition(0, 0);
     gui1->autoSizeToFitWidgets();
@@ -119,7 +218,6 @@ void ofApp::setGUI1() {
 
 void ofApp::setGUI2() {
 
-	int bufferSize = 10;
     vector<float> buffer;
     for (int i = 0; i < bufferSize; i++) {
         buffer.push_back(0.0);
@@ -150,7 +248,6 @@ void ofApp::setGUI2() {
 
 void ofApp::setGUI3() {
 
-	int bufferSize = 10;
     vector<float> buffer;
     for (int i = 0; i < bufferSize; i++) {
         buffer.push_back(0.0);
@@ -161,28 +258,28 @@ void ofApp::setGUI3() {
 
 	gui3->addSpacer();
 
-	deltaGraph = gui3->addMovingGraph("DELTA", buffer, bufferSize, 0.0, 1500000.0);
+	deltaGraph = gui3->addMovingGraph("DELTA", buffer, bufferSize, 0.0, 2000000.0);
 	deltaLabel = gui3->addLabel(" ", OFX_UI_FONT_SMALL);
 
-	thetaGraph = gui3->addMovingGraph("THETA", buffer, bufferSize, 0.0, 600000.0);
+	thetaGraph = gui3->addMovingGraph("THETA", buffer, bufferSize, 0.0, 2000000.0);
 	thetaLabel = gui3->addLabel(" ", OFX_UI_FONT_SMALL);
 
-	lowAlphaGraph = gui3->addMovingGraph("LOW ALPHA", buffer, bufferSize, 0.0, 75000.0);
+	lowAlphaGraph = gui3->addMovingGraph("LOW ALPHA", buffer, bufferSize, 0.0, 200000.0);
 	lowAlphaLabel = gui3->addLabel(" ", OFX_UI_FONT_SMALL);
 
-	highAlphaGraph = gui3->addMovingGraph("HIGH ALPHA", buffer, bufferSize, 0.0, 150000.0);
+	highAlphaGraph = gui3->addMovingGraph("HIGH ALPHA", buffer, bufferSize, 0.0, 200000.0);
 	highAlphaLabel = gui3->addLabel(" ", OFX_UI_FONT_SMALL);
 
-	lowBetaGraph = gui3->addMovingGraph("LOW BETA", buffer, bufferSize, 0.0, 60000.0);
+	lowBetaGraph = gui3->addMovingGraph("LOW BETA", buffer, bufferSize, 0.0, 200000.0);
 	lowBetaLabel = gui3->addLabel(" ", OFX_UI_FONT_SMALL);
 
-	highBetaGraph = gui3->addMovingGraph("HIGH BETA", buffer, bufferSize, 0.0, 60000.0);
+	highBetaGraph = gui3->addMovingGraph("HIGH BETA", buffer, bufferSize, 0.0, 200000.0);
 	highBetaLabel = gui3->addLabel(" ", OFX_UI_FONT_SMALL);
 
-	lowGammaGraph = gui3->addMovingGraph("LOW GAMMA", buffer, bufferSize, 0.0, 300000.0);
+	lowGammaGraph = gui3->addMovingGraph("LOW GAMMA", buffer, bufferSize, 0.0, 100000.0);
 	lowGammaLabel = gui3->addLabel(" ", OFX_UI_FONT_SMALL);
 
-	midGammaGraph = gui3->addMovingGraph("MID GAMMA", buffer, bufferSize, 0.0, 300000.0);
+	midGammaGraph = gui3->addMovingGraph("MID GAMMA", buffer, bufferSize, 0.0, 100000.0);
 	midGammaLabel = gui3->addLabel(" ", OFX_UI_FONT_SMALL);
 
 
@@ -193,16 +290,24 @@ void ofApp::setGUI3() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-	switch (key) {
-		case 'h':
-	        gui1->toggleVisible();
-			break;
-	}
+	
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
 
+	if (key=='g') {
+        gui1->toggleVisible();
+	}
+
+	if (key=='p') {
+		// save a screenshot
+        ofImage img;
+        img.grabScreen(0,0,ofGetWidth(), ofGetHeight());
+        string fileName = "screenshots/think_"+ofGetTimestampString()+".png";
+        img.saveImage(fileName);
+        cout << "saved screenshot " << fileName.c_str() << endl;
+    }
 }
 
 //--------------------------------------------------------------
@@ -268,6 +373,14 @@ void ofApp::onThinkgearPower(ofxThinkgearEventArgs& args){
 void ofApp::onThinkgearPoorSignal(ofxThinkgearEventArgs& args){
 	tgPoorSignal = int(args.poorSignal);
 	cout << "onThinkgearPoorSignal " << int(args.poorSignal) << endl;
+	msCounter = ofGetElapsedTimeMillis() - lastDataMillis;
+	avgMsCounter = msCounter*interpolateSampling + avgMsCounter*(1.0f-interpolateSampling);
+	avgSamplingRateHz = 1.0f / (avgMsCounter/1000.f);
+
+	cout << "msCounter = \t" << msCounter << "ms \t avg: " << avgMsCounter << "ms\t " << avgSamplingRateHz << "Hz" << endl;
+	lastDataMillis = ofGetElapsedTimeMillis();
+	newData = true;
+	clearedData = false;
 }
 
 void ofApp::onThinkgearHeartRate(ofxThinkgearEventArgs& args){
@@ -282,13 +395,13 @@ void ofApp::onThinkgearBlinkStrength(ofxThinkgearEventArgs& args){
 
 void ofApp::onThinkgearAttention(ofxThinkgearEventArgs& args){
     tgAttention = int(args.attention);
-    attentionGraph->addPoint(tgAttention);
+    
     // cout << "onThinkgearAttention " << tgAttention << endl;
 }
 
 void ofApp::onThinkgearMeditation(ofxThinkgearEventArgs& args){
     tgMeditation = int(args.meditation);
-    meditationGraph->addPoint(tgMeditation);
+    
     // cout << "onThinkgearMeditation " << tgMeditation << endl;
 }
 
@@ -301,14 +414,8 @@ void ofApp::onThinkgearEeg(ofxThinkgearEventArgs& args){
 	tgHighBeta = int(args.eegHighBeta);
 	tgLowGamma = int(args.eegLowGamma);
 	tgMidGamma = int(args.eegMidGamma);
-	deltaGraph->addPoint(tgDelta);
-	thetaGraph->addPoint(tgTheta);
-	lowAlphaGraph->addPoint(tgLowAlpha);
-	highAlphaGraph->addPoint(tgHighAlpha);
-	lowBetaGraph->addPoint(tgLowBeta);
-	highBetaGraph->addPoint(tgHighBeta);
-	lowGammaGraph->addPoint(tgLowGamma);
-	midGammaGraph->addPoint(tgMidGamma);
+	
+	// cout << "onThinkgearEeg " << endl;
 }
 
 void ofApp::onThinkgearConnecting(ofxThinkgearEventArgs& args){
