@@ -1,24 +1,48 @@
 
 # EEG via OSC workshop
 
-broadcasting EEG data from MyndPlay BrainBand XL (NeuroSky chip) of ZEO bedside display via OSC and allowing multiple clients to receive and interpret the data
-
+broadcasting EEG data from MyndPlay BrainBand XL (NeuroSky chip), Muse EEG, or ZEO bedside display via OSC and allowing multiple clients to receive and interpret the data
 
 ofxThinkgear addon: https://github.com/evsc/ofxThinkgear
 
 
 ## OSC messages
 
-### zeo broadcast
+### muse
+The Muse headband has 4 sensors, the values are communicated in the order: (1) left ear (2) left forehead (3) right forehead (4) right ear. 
+
+	# EEG of 4 sensors, in microvolt range 0-1682.0
+	/muse/eeg ffff
+	# multiply eeg value with quantization value to get uncompressed value
+	/muse/eeg/quantization iiii
+	# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
+	/muse/acc fff
+	# frequency bands
+	/muse/dsp/bandpower/delta dddd 	# 1-4Hz
+	/muse/dsp/bandpower/theta dddd  # 5-8Hz
+	/muse/dsp/bandpower/alpha dddd  # 9-13Hz
+	/muse/dsp/bandpower/beta dddd  # 13-30Hz
+	/muse/dsp/bandpower/gamma dddd  # 30-50Hz
+	# status indicator for sensors, 1=good, 2=ok, >=3=bad
+	/muse/dsp/status_indicator dddd
+	# blink, 1=blink detected
+	/muse/dsp/blink i 
+	/muse/dsp/jaw_clench
+
+
+
+### thinkgear
+
+	... 
+
+### zeo
+
 
 	# ZEO's 7 frequency bins fffffff
 	/slice 0. 0. 0. 0. 0. 0. 0. 
 	# ZEO's sleep state i
 	/state 0
 
-### thinkgear broadcast
-
-	... 
 
 
 ## ThinkGear EEG
