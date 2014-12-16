@@ -21,12 +21,16 @@ String myDisconnectPattern = "/eeg/disconnect";
 
 PFont myFont;
 
-
+// muse values
 int eeg_output_frequency_hz = 0;
 int notch_frequency_hz = 0;
 int battery_percent_remaining = 0;
 int status_indicator[];
 int dropped_samples = 0;
+// thinkgear
+int tgAttention = 0;
+int tgMeditation = 0;
+int tgPoorSignal = 0;
 
 
 void setup() {
@@ -56,6 +60,11 @@ void draw() {
   text("notch_frequency_hz \t\t" + notch_frequency_hz, 10,100);
   text("eeg: dropped_samples \t\t" + dropped_samples, 10,120);
   text("status_indicator " + status_indicator[0] + " " + status_indicator[1] + " " + status_indicator[2] + " " + status_indicator[3], 10, 140);
+
+  text("poorSignal \t" + tgPoorSignal, 300, 60);
+  text("attention \t" + tgAttention, 300, 80);
+  text("meditation \t" + tgMeditation, 300, 100);
+  
 
   fill(255,0,0);
   text("OSC CLIENTS", 10, 230);
@@ -134,6 +143,22 @@ void oscEvent(OscMessage theOscMessage) {
     oscP5.send(theOscMessage, myNetAddressList);
   }
   else {
+    String startPattern = theOscMessage.addrPattern().substring(0,10);
+    if(startPattern.equals("/thinkgear")) {
+      
+      if (theOscMessage.addrPattern().equals("/thinkgear/poorsignal")) {
+        tgPoorSignal = theOscMessage.get(0).intValue();
+      } 
+      else if (theOscMessage.addrPattern().equals("/thinkgear/attention")) {
+        tgAttention = theOscMessage.get(0).intValue();
+      }
+      else if (theOscMessage.addrPattern().equals("/thinkgear/meditation")) {
+        tgMeditation = theOscMessage.get(0).intValue();
+      }
+      
+      // then let's pass on all messages  
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
     // println(theOscMessage.addrPattern());
   }
 }

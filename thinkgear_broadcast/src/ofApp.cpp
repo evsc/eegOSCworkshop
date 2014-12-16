@@ -10,7 +10,7 @@ void ofApp::setup(){
 	msCounter = 0;
 	avgMsCounter = 0;
 	avgSamplingRateHz = 0;
-	beat = 0.2;	// sample incoming Data every 20ms 
+	beat = 0.2;	// sample incoming Data every 20ms
 	interpolateSampling = 0.3;
 	lastDataMillis = ofGetElapsedTimeMillis();
 	newData = false;
@@ -22,7 +22,11 @@ void ofApp::setup(){
 	baudRateInt = 57600;
 	devicePort = NULL;
 	baudRate = NULL;
+	oscHost = NULL;
 
+    // OSC
+    transmitOSC = true;
+    oscSendPort = 5002;
 
 	resetDataValues();
 
@@ -31,7 +35,7 @@ void ofApp::setup(){
 	setGUI1();
 	setGUI2();
 	setGUI3();
-	
+
 	gui1->loadSettings("gui1Settings.xml");
 	gui2->loadSettings("gui2Settings.xml");
 	gui3->loadSettings("gui3Settings.xml");
@@ -43,7 +47,10 @@ void ofApp::setup(){
     // print out all serial ports
     // tg.device.listDevices();
     // [notice ] ofSerial: [0] = rfcomm0
-    cout << "setup" << endl;
+
+    // OSC
+    oscSender.setup(oscHost->getTextString(), int(oscSendPort));
+    cout << "send OSC to " << oscHost->getTextString() << " on port " << int(oscSendPort) << endl;
 
 }
 
@@ -66,7 +73,7 @@ void ofApp::update(){
 
 	tg.update();
 
-	// update GUI 
+	// update GUI
 	if (tg.isReady) {
 		connectInfo->setTextString("connected");
     } else {
@@ -74,7 +81,7 @@ void ofApp::update(){
     }
 
 
-	
+
 	if (beatCounter >= beat) {
 		beatCounter -= beat;
 
@@ -94,14 +101,14 @@ void ofApp::update(){
 		lowBetaGraph->addPoint(tgLowBeta);
 		highBetaGraph->addPoint(tgHighBeta);
 		lowGammaGraph->addPoint(tgLowGamma);
-		midGammaGraph->addPoint(tgMidGamma);	
+		midGammaGraph->addPoint(tgMidGamma);
 
 		attentionGraph->addPoint(tgAttention);
 		meditationGraph->addPoint(tgMeditation);
 
 		attentionLabel->setLabel("Attention 0-100: " + ofToString(tgAttention));
 	    meditationLabel->setLabel("Meditation 0-100: " + ofToString(tgMeditation));
-	    
+
 	    deltaLabel->setLabel("Delta (0.5 - 2.75Hz) 0-3000000: " + ofToString(tgDelta));
 	    thetaLabel->setLabel("Theta (3.5 - 6.75Hz) 0-3000000: " + ofToString(tgTheta));
 	    lowAlphaLabel->setLabel("Low Alpha (7.5 - 9.25Hz) 0-500000: " + ofToString(tgLowAlpha));
@@ -116,8 +123,8 @@ void ofApp::update(){
 
 	rawLabel->setLabel("Raw: " + ofToString(tgRaw));
 
-    
-    
+
+
 
 }
 
@@ -139,11 +146,18 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 	int kind = e.getKind();
 	cout << "got event from: " << name << endl;
 
-	if (e.getName() == "Show RAW Data") {
-		ofxUIToggle *toggle = e.getToggle(); 
+	if (name == "Show RAW Data") {
+		ofxUIToggle *toggle = e.getToggle();
 		insertRawData = toggle->getValue();
 	}
-
+    if (name == "OSC") {
+		ofxUIToggle *toggle = e.getToggle();
+		transmitOSC = toggle->getValue();
+	}
+	if (name == "HOST") {
+        ofxUITextInput *ti = (ofxUITextInput *) e.widget;
+        string output = ti->getTextString();
+    }
 }
 
 
@@ -188,7 +202,8 @@ void ofApp::setGUI1() {
 
     gui1->addSpacer();
     gui1->addLabel("DEVICE PORT", OFX_UI_FONT_SMALL);
-    devicePort = gui1->addTextInput("DEVICE PORT", "/dev/rfcomm0");
+    // devicePort = gui1->addTextInput("DEVICE PORT", "/dev/rfcomm0");
+    devicePort = gui1->addTextInput("DEVICE PORT", "COM37");
     gui1->addLabel("BAUDRATE", OFX_UI_FONT_SMALL);
     baudRate = gui1->addTextInput("BAUDRATE", ofToString(baudRateInt));
 
@@ -226,10 +241,19 @@ void ofApp::setGUI1() {
     gui1->addSlider("Clear Counter 1-10", 0.0f, 10.0f, &clearCounter);
 
 
+    gui1->addSpacer();
+    gui1->addLabel("OSC");
+    gui1->addToggle("send OSC data", transmitOSC);
+
+    gui1->addSlider("PORT", 0.f, 10000.f, &oscSendPort);
+    gui1->addLabel("HOST", OFX_UI_FONT_SMALL);
+    oscHost = gui1->addTextInput("HOST", "localhost");
+    oscHost->setAutoUnfocus(false);
+
     gui1->setPosition(0, 0);
     gui1->autoSizeToFitWidgets();
 
-    ofAddListener(gui1->newGUIEvent, this, &ofApp::guiEvent); 
+    ofAddListener(gui1->newGUIEvent, this, &ofApp::guiEvent);
 
 }
 
@@ -266,7 +290,7 @@ void ofApp::setGUI2() {
 
     gui2->autoSizeToFitWidgets();
 
-    ofAddListener(gui2->newGUIEvent, this, &ofApp::guiEvent); 
+    ofAddListener(gui2->newGUIEvent, this, &ofApp::guiEvent);
 
 }
 
@@ -314,7 +338,7 @@ void ofApp::setGUI3() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-	
+
 }
 
 //--------------------------------------------------------------
@@ -365,7 +389,7 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
@@ -407,6 +431,11 @@ void ofApp::onThinkgearPoorSignal(ofxThinkgearEventArgs& args){
 	lastDataMillis = ofGetElapsedTimeMillis();
 	newData = true;
 	clearedData = false;
+
+    ofxOscMessage m;
+    m.setAddress("/thinkgear/poorsignal");
+    m.addIntArg(tgPoorSignal);
+    oscSender.sendMessage(m);
 }
 
 void ofApp::onThinkgearHeartRate(ofxThinkgearEventArgs& args){
@@ -421,14 +450,22 @@ void ofApp::onThinkgearBlinkStrength(ofxThinkgearEventArgs& args){
 
 void ofApp::onThinkgearAttention(ofxThinkgearEventArgs& args){
     tgAttention = int(args.attention);
-    
+
     // cout << "onThinkgearAttention " << tgAttention << endl;
+    ofxOscMessage m;
+    m.setAddress("/thinkgear/attention");
+    m.addIntArg(tgAttention);
+    oscSender.sendMessage(m);
 }
 
 void ofApp::onThinkgearMeditation(ofxThinkgearEventArgs& args){
     tgMeditation = int(args.meditation);
-    
+
     // cout << "onThinkgearMeditation " << tgMeditation << endl;
+    ofxOscMessage m;
+    m.setAddress("/thinkgear/meditation");
+    m.addIntArg(tgMeditation);
+    oscSender.sendMessage(m);
 }
 
 void ofApp::onThinkgearEeg(ofxThinkgearEventArgs& args){
@@ -440,8 +477,19 @@ void ofApp::onThinkgearEeg(ofxThinkgearEventArgs& args){
 	tgHighBeta = int(args.eegHighBeta);
 	tgLowGamma = int(args.eegLowGamma);
 	tgMidGamma = int(args.eegMidGamma);
-	
+
 	// cout << "onThinkgearEeg " << endl;
+	ofxOscMessage m;
+    m.setAddress("/thinkgear/eeg");
+    m.addFloatArg(tgDelta);
+    m.addFloatArg(tgTheta);
+    m.addFloatArg(tgLowAlpha);
+    m.addFloatArg(tgHighAlpha);
+    m.addFloatArg(tgLowBeta);
+    m.addFloatArg(tgHighBeta);
+    m.addFloatArg(tgLowGamma);
+    m.addFloatArg(tgMidGamma);
+    oscSender.sendMessage(m);
 }
 
 void ofApp::onThinkgearConnecting(ofxThinkgearEventArgs& args){

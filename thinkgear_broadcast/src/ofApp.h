@@ -4,6 +4,7 @@
 #include "ofxThinkgear.h"
 #include "ofxUI.h"
 #include "ofxUITextArea.h"
+#include "ofxOsc.h"
 
 class ofApp : public ofBaseApp{
 
@@ -59,7 +60,7 @@ class ofApp : public ofBaseApp{
         unsigned int tgHighBeta;   // 2500 / 60000 . 18-29.75hz
         unsigned int tgLowGamma;   // 5000 / 300000 . 31-39.75hz
         unsigned int tgMidGamma;   // 5000 / 300000 . 41-49.75hz
-    
+
 
         // GUI
         void setGUI1();
@@ -76,6 +77,7 @@ class ofApp : public ofBaseApp{
 
         ofxUITextInput *devicePort;
         ofxUITextInput *baudRate;
+        ofxUITextInput *oscHost;
 
         ofxUIMovingGraph *incomingDataGraph;
 
@@ -103,14 +105,14 @@ class ofApp : public ofBaseApp{
         ofxUILabel *midGammaLabel;
         ofxUIMovingGraph *midGammaGraph;
 
-        // 
+        //
         unsigned int lastDataMillis;
         float msCounter;
         float avgMsCounter;
         float avgSamplingRateHz;
         float interpolateSampling;
         bool newData;
-        
+
         float beatCounter;
         float beat;
         bool clearedData;
@@ -118,9 +120,16 @@ class ofApp : public ofBaseApp{
         int bufferSize;
 
 
+        // OSC
+        ofxOscSender oscSender;
+        float oscSendPort;
+        bool transmitOSC;
+
+
+
     private:
 
         ofxThinkgear tg;
         ofxThinkgearEventArgs data;
-		
+
 };
