@@ -18,22 +18,28 @@ The Muse headband has 4 sensors, the values are communicated in the order: (1) l
 	# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
 	/muse/acc fff
 	# frequency bands
-	/muse/dsp/bandpower/delta dddd 	# 1-4Hz
-	/muse/dsp/bandpower/theta dddd  # 5-8Hz
-	/muse/dsp/bandpower/alpha dddd  # 9-13Hz
-	/muse/dsp/bandpower/beta dddd  # 13-30Hz
-	/muse/dsp/bandpower/gamma dddd  # 30-50Hz
+	/muse/elements/delta dddd 	# 1-4Hz
+	/muse/elements/theta dddd  # 5-8Hz
+	/muse/elements/alpha dddd  # 9-13Hz
+	/muse/elements/beta dddd  # 13-30Hz
+	/muse/elements/gamma dddd  # 30-50Hz
 	# status indicator for sensors, 1=good, 2=ok, >=3=bad
-	/muse/dsp/status_indicator dddd
+	/muse/elements/horseshoe ffff
 	# blink, 1=blink detected
-	/muse/dsp/blink i 
-	/muse/dsp/jaw_clench
+	/muse/elements/blink i 
+	/muse/elements/jaw_clench
 
 
 
 ### thinkgear
 
-	... 
+	# quality of signal. 200=no signal, 0=good
+	/thinkgear/poorsignal i
+	# thinkgear proprietary eSense meters: attention, meditation, range: 0-100
+	/thinkgear/attention i
+	/thinkgear/meditation i
+	# frequency bands: (1) delta (2) theta (3) lowAlpha (4) highAlpha (5) lowBeta (6) highBeta (7) lowGamma (8) midGamma
+	/thinkgear/eeg iiiiiiii
 
 ### zeo
 
