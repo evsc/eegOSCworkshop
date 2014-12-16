@@ -38,8 +38,8 @@ class ofApp : public ofBaseApp{
         void onThinkgearConnecting(ofxThinkgearEventArgs& args);
 
 
-        string devicePort;
-        int baudRate;
+        // string devicePort;
+        int baudRateInt;
 
         unsigned int tgPower;
         float tgPoorSignal;
@@ -73,6 +73,9 @@ class ofApp : public ofBaseApp{
         bool insertRawData;
 
         void guiEvent(ofxUIEventArgs &e);
+
+        ofxUITextInput *devicePort;
+        ofxUITextInput *baudRate;
 
         ofxUIMovingGraph *incomingDataGraph;
 

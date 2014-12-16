@@ -18,8 +18,10 @@ void ofApp::setup(){
 	clearedData = false;
 	bufferSize = 100;
 
-	devicePort = "/dev/rfcomm0";
-	baudRate = 57600;
+	// devicePort = "/dev/rfcomm0";
+	baudRateInt = 57600;
+	devicePort = NULL;
+	baudRate = NULL;
 
 
 	resetDataValues();
@@ -29,12 +31,13 @@ void ofApp::setup(){
 	setGUI1();
 	setGUI2();
 	setGUI3();
+	
 	gui1->loadSettings("gui1Settings.xml");
 	gui2->loadSettings("gui2Settings.xml");
 	gui3->loadSettings("gui3Settings.xml");
 
 
-	tg.setup(devicePort, baudRate);
+	tg.setup(devicePort->getTextString(), baudRate->getIntValue());
     tg.addEventListener(this);
 
     // print out all serial ports
@@ -147,8 +150,10 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 
 //--------------------------------------------------------------
 void ofApp::exit() {
-    // gui1->saveSettings("gui1Settings.xml");
-    
+    gui1->saveSettings("gui1Settings.xml");
+	gui2->saveSettings("gui2Settings.xml");
+	gui3->saveSettings("gui3Settings.xml");
+
 	delete gui1;
 
 }
@@ -178,11 +183,14 @@ void ofApp::resetDataValues() {
 
 void ofApp::setGUI1() {
 
+
 	gui1 = new ofxUISuperCanvas("THINKGEAR");
 
     gui1->addSpacer();
-    gui1->addLabel("DEVICE PORT: " + devicePort, OFX_UI_FONT_SMALL);
-    gui1->addLabel("BAUDRATE: " + ofToString(baudRate), OFX_UI_FONT_SMALL);
+    gui1->addLabel("DEVICE PORT", OFX_UI_FONT_SMALL);
+    devicePort = gui1->addTextInput("DEVICE PORT", "/dev/rfcomm0");
+    gui1->addLabel("BAUDRATE", OFX_UI_FONT_SMALL);
+    baudRate = gui1->addTextInput("BAUDRATE", ofToString(baudRateInt));
 
 
     gui1->addSpacer();
@@ -220,6 +228,8 @@ void ofApp::setGUI1() {
 
     gui1->setPosition(0, 0);
     gui1->autoSizeToFitWidgets();
+
+    ofAddListener(gui1->newGUIEvent, this, &ofApp::guiEvent); 
 
 }
 
