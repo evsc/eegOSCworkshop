@@ -38,7 +38,7 @@ int notch_frequency_hz = 0;
 int battery_percent_remaining = 0;
 int status_indicator[];
 int dropped_samples = 0;
-int museEEG[];
+float museEEG[];
 String[] museEEGband = { "Delta (1-4)", "Theta (508)", "Alpha (9-13)", "Beta (13-30)", "Gamma (30-50)"};
 
 
@@ -64,7 +64,7 @@ void setup() {
   tgEEG = new int[8];
   for (int i=0; i<8; i++) tgEEG[i] = 0;
   
-  museEEG = new int[5];
+  museEEG = new float[5];
   for (int i=0; i<5; i++) museEEG[i] = 0;
   
   
@@ -191,10 +191,9 @@ void oscEvent(OscMessage theOscMessage) {
       println(theOscMessage.addrPattern());
       for (int i=0; i<5; i++) println(theOscMessage.get(i).stringValue());
     }
-    else if (theOscMessage.addrPattern().equals("/muse/dsp/status_indicator")) {
+    else if (theOscMessage.addrPattern().equals("/muse/elements/horseshoe")) {
       for (int i=0; i<4; i++) status_indicator[i] = int(theOscMessage.get(i).floatValue());
       oscP5.send(theOscMessage, myNetAddressList);
-      println(theOscMessage.addrPattern() + ": " + status_indicator[0]);
     }
     else if (theOscMessage.addrPattern().equals("/muse/eeg/dropped_samples")) {
       dropped_samples = theOscMessage.get(0).intValue();
@@ -208,27 +207,32 @@ void oscEvent(OscMessage theOscMessage) {
     else if (theOscMessage.addrPattern().equals("/muse/acc")) {
       oscP5.send(theOscMessage, myNetAddressList);
     }
-    else if (theOscMessage.addrPattern().equals("/muse/dsp/bandpower/delta")) {
+    else if (theOscMessage.addrPattern().equals("/muse/elements/delta_absolute")) {
+      museEEG[0] = (theOscMessage.get(0).floatValue());
       oscP5.send(theOscMessage, myNetAddressList);
     }
-    else if (theOscMessage.addrPattern().equals("/muse/dsp/bandpower/theta")) {
+    else if (theOscMessage.addrPattern().equals("/muse/elements/theta_absolute")) {
+      museEEG[1] = (theOscMessage.get(0).floatValue());
       oscP5.send(theOscMessage, myNetAddressList);
     }
-    else if (theOscMessage.addrPattern().equals("/muse/dsp/bandpower/alpha")) {
+    else if (theOscMessage.addrPattern().equals("/muse/elements/alpha_absolute")) {
+      museEEG[2] = (theOscMessage.get(0).floatValue());
       oscP5.send(theOscMessage, myNetAddressList);
     }
-    else if (theOscMessage.addrPattern().equals("/muse/dsp/bandpower/beta")) {
+    else if (theOscMessage.addrPattern().equals("/muse/elements/beta_absolute")) {
+      museEEG[3] = (theOscMessage.get(0).floatValue());
       oscP5.send(theOscMessage, myNetAddressList);
     }
-    else if (theOscMessage.addrPattern().equals("/muse/dsp/bandpower/gamma")) {
+    else if (theOscMessage.addrPattern().equals("/muse/elements/gamma_absolute")) {
+      museEEG[4] = (theOscMessage.get(0).floatValue());
       oscP5.send(theOscMessage, myNetAddressList);
     }
-    else if (theOscMessage.addrPattern().equals("/muse/dsp/blink")) {
+    else if (theOscMessage.addrPattern().equals("/muse/elements/blink")) {
       oscP5.send(theOscMessage, myNetAddressList);
       int blinkVal = theOscMessage.get(0).intValue();
-      println("muse blink "+blinkVal);
+      // println("muse blink "+blinkVal);
     }
-    else if (theOscMessage.addrPattern().equals("/muse/dsp/jaw_clench")) {
+    else if (theOscMessage.addrPattern().equals("/muse/elements/jaw_clench")) {
       oscP5.send(theOscMessage, myNetAddressList);
     }
     
