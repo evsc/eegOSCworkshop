@@ -10,7 +10,7 @@ Recording of electrical activity along the scalp
 
 ## Electricity on my mind
 
-Electrical activity in the form of nerve impulses. 100 billion neurons. When the all fire in synchrony, a rhythm can be detected. 
+Electrical activity in the form of nerve impulses. 100 billion neurons. 
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/neuron.png"/>
@@ -33,7 +33,7 @@ Electrical activity in the form of nerve impulses. 100 billion neurons. When the
 
 ## Brainwaves
 
-An EEG electrode detects the electrical activity from thousands of neurons underneath its sensor. One square millimeter of cortex has more than 100,000 neurons. The amplitudes recorded by scalp electrodes are in the range of microvolts. 
+An EEG electrode detects the electrical activity from thousands of neurons underneath its sensor. One square millimeter of cortex has more than 100,000 neurons. The amplitudes recorded by scalp electrodes are in the range of microvolts. When a lot of them fire in near-synchrony, a rhythm can be detected. 
 
 Amplitude and frequency are the primary characteristics of brain waves. The more neurons that work in synchrony, the larger the potential (amplitude) of the electrical oscillations measu­red in microvolts. The faster the neurons work together, the higher the frequency of the oscilla­tions measured in Hertz.
 
@@ -54,11 +54,13 @@ Amplitude and frequency are the primary characteristics of brain waves. The more
 
 ## Measuring the Brain
 
+Other methods for measuring the brain might be more exact, but are usually bigger, heavier, scarier and more expensive. 
+
 | Method | Name | how it works |
 | ------- | ------- | ------- | 
 | **CT** | X-Ray Computed Tomography | | |
 | **PET** | Position Emission Tomography | | |
-| **MRI / fMRI** -| (Functional) Magnetic Resonance Imaging | measures blood flow changes | extreme spacial resolution |
+| **MRI / fMRI** | (Functional) Magnetic Resonance Imaging | measures blood flow changes | extreme spacial resolution |
 | **MEG** | Magneto Encephalo Graphy | measures magnetic field | requires room of shielding |
 | **fNIRS** | Functional Near-Infrared Spectroscopy | | low resolution (space, time) |
 |  | Invasive Sensors | microarrays, neurochips, ECoG, ... | 
@@ -84,7 +86,9 @@ Consumer affordable BCI interfaces, usually with only 1 to 5 channels.
 
 ## Sensors
 
-dry or wet (conductive paste)
+ * dry (pin sensors, or conductive foam)
+ * wet (conductive paste)
+ * epidermal electronics 
 
 A electrode always needs at least a second electrode as a reference signal, so it can measure the difference in electrical potential (voltage) between their two positions. An electrode on the earlobe acts as a point of reference, ‘ground’, of the body’s baseline voltage due to other electrical activities within the body.
 
@@ -100,21 +104,53 @@ Electrode positions have been named according to the brain region below the area
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/image011.jpg"/>
 </p>
 
-## Circuitry
+## Data acquisition
+
+### Hardware: Circuitry
 
  1. Electrode and Reference
  2. Differential amplifier
  3. Amplifier
  4. 50/60 Hertz Filter
- 5. Analog Digital Conversion (256-512 Hz, up to 20kHz)
+ 5. Analog Digital Conversion (sampling at: 256-512 Hz, up to 20kHz)
 
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/circuitry.png"/>
 </p>
 
-After: FFT frequency analysis
+### Software: Signal Processing
 
+ * FFT frequency analysis
+
+
+
+## Watch out!
+
+ * Variability! signals are different for every person
+ * Variability! placement of sensors
+ * Variability! brain dynamics constantly change
+ * Signal-to-noise ratio very noisy!
+ * Redundancy: all channels almost record the same signal
+ * Calibration needed: record a baseline first
+
+
+
+
+
+
+
+# Using EEG data
+
+## EEG in Neurological Diagnostic
+
+ * Epilepsy
+ * Coma
+ * Brain death
+ * Brain dysfunctions
+ * Sleep research
+ * Sleep disorders
+ * Anesthesia
 
 ## Types of BCI
 
@@ -134,30 +170,6 @@ After: FFT frequency analysis
 
 
 
-
-
-# Using EEG data
-
-## Watch out
-
- * Variability! signals are different for every person
- * Variability! placement of sensors
- * Variability! brain dynamics constantly change
- * Signal-to-noise ratio very noisy!
- * Redundancy: all channels almost record the same signal
- * Calibration needed: record a baseline first
-
-
-## EEG in Neurological Diagnostic
-
- * Epilepsy
- * Coma
- * Brain death
- * Brain dysfunctions
- * Sleep research
- * Sleep disorders
- * Anesthesia
-
 ## Applications
 
  * Speller programs, for locked-in syndrome
@@ -167,7 +179,7 @@ After: FFT frequency analysis
  * Health: sleep stage recognition, neurorehabilitation
 
 
-## Projects 
+## Art/Research projects 
 
  * Alvin Lucier [Music For Solo Performer](https://www.youtube.com/watch?v=bIPU2ynqy2Y) (1965) 
  * Onur Sonmez - Tim Devine [The Mexican Standoff](https://vimeo.com/10047079) (2010)
@@ -183,7 +195,7 @@ After: FFT frequency analysis
 
 
 
-# DATA what to do
+# DATA what to do?
 
  * data visualization
  * data sonification
