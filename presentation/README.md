@@ -20,11 +20,11 @@ Neurons, electric impulses
 
 ## EEG History
 
-| year | 
-| -- | --
-| **1875, 1890** | EEG activity of animals  
-| **1924** | first human EEG, Hans Berger named EEG  
-| **1937** | stages of sleep  
+| year | history |
+| -- | -- |
+| **1875, 1890** | EEG activity of animals  |
+| **1924** | first human EEG, Hans Berger named EEG  |
+| **1937** | stages of sleep  |
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/Berger_EEG.jpg"/>
@@ -34,13 +34,13 @@ Neurons, electric impulses
 
 ## Brainwaves
 
-| WAVE | FREQ | STATE
-| -- | -- | --
-| **GAMMA** | 30-120 Hz | hyper active
-| **BETA** | 14-30 Hz | active thinking
-| **ALPHA** | 7-14 Hz | relaxed focus, meditation
-| **THETA** | 4-7 Hz | drowsy, dreams
-| **DELTA** | < 4 Hz | dreamless sleep
+| WAVE | FREQ | STATE |
+| -- | -- | -- |
+| **GAMMA** | 30-120 Hz | hyper active |
+| **BETA** | 14-30 Hz | active thinking |
+| **ALPHA** | 7-14 Hz | relaxed focus, meditation |
+| **THETA** | 4-7 Hz | drowsy, dreams |
+| **DELTA** | < 4 Hz | dreamless sleep |
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/Brain-Waves-Graph-1024x827.jpg"/>
@@ -76,7 +76,7 @@ Neurons, electric impulses
 
 ## Sensors
 
-dry, wet
+dry or wet (conductive gel)
 
 ### 10-20 System
 
