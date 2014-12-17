@@ -20,11 +20,11 @@ Neurons, electric impulses
 
 ## EEG History
 
-year | 
--- | --
-**1875, 1890** | EEG activity of animals  
-**1924** | first human EEG, Hans Berger named EEG  
-**1937** | stages of sleep  
+| year | 
+| -- | --
+| **1875, 1890** | EEG activity of animals  
+| **1924** | first human EEG, Hans Berger named EEG  
+| **1937** | stages of sleep  
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/Berger_EEG.jpg"/>
@@ -34,13 +34,13 @@ year |
 
 ## Brainwaves
 
-WAVE | FREQ | STATE
--- | -- | --
-**GAMMA** | 30-120 Hz | hyper active
-**BETA** | 14-30 Hz | active thinking
-**ALPHA** | 7-14 Hz | relaxed focus, meditation
-**THETA** | 4-7 Hz | drowsy, dreams
-**DELTA** | < 4 Hz | dreamless sleep
+| WAVE | FREQ | STATE
+| -- | -- | --
+| **GAMMA** | 30-120 Hz | hyper active
+| **BETA** | 14-30 Hz | active thinking
+| **ALPHA** | 7-14 Hz | relaxed focus, meditation
+| **THETA** | 4-7 Hz | drowsy, dreams
+| **DELTA** | < 4 Hz | dreamless sleep
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/Brain-Waves-Graph-1024x827.jpg"/>
@@ -68,6 +68,11 @@ WAVE | FREQ | STATE
 * [Muse](http://www.choosemuse.com/) by InteraXon
 * [Open BCI](http://openbci.com/)
 * [ModularEEG](http://openeeg.sourceforge.net/doc/modeeg/modeeg.html)
+
+<p align="center">
+	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/bci_compare.png"/>
+</p>
+
 
 ## Sensors
 
@@ -125,7 +130,8 @@ dry, wet
  * Mats Sivertsen [subConch](http://www.mats-sivertsen.net/subconch.html) (2013)
  * Ion Popian [Mental Fabrication](http://thecreatorsproject.vice.com/blog/this-machine-turns-your-mental-map-into-an-architectural-structure) (2014)
  * Masaki Batoh [Brain Pulse Music Machine](http://www.monsterfresh.com/2012/04/04/masaki-batoh-brain-pulse-music-machine/)
-
+ * University Of Minnesota [Mind Over Mechanics (Control a drone with your thoughts)](https://www.youtube.com/watch?v=rpHy-fUyXYk)
+ * Onur Sonmez - Tim Devine [The Mexican Standoff](https://vimeo.com/10047079)
 
 
 
@@ -139,7 +145,9 @@ dry, wet
 
 
 
+# Brain Future
 
+ * Gallant Lab, UC Berkley [Movie reconstruction from human brain activity](https://www.youtube.com/watch?v=nsjDnYxJ0bo)
 
 
 
