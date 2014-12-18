@@ -76,7 +76,7 @@ void draw() {
 
 /* incoming osc message are forwarded to the oscEvent method. */
 void oscEvent(OscMessage theOscMessage) {
-  theOscMessage.print();
+  // theOscMessage.print();
   
   if (theOscMessage.addrPattern().equals("/thinkgear/attention")) {
     attention = theOscMessage.get(0).intValue();
