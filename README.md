@@ -11,20 +11,26 @@ ofxThinkgear addon: https://github.com/evsc/ofxThinkgear
 ### muse
 The Muse headband has 4 sensors, the values are communicated in the order: (1) left ear (2) left forehead (3) right forehead (4) right ear. 
 
+All OSC values you can receive from the muse-io driver (v3-6-0), are documented [here](https://sites.google.com/a/interaxon.ca/muse-developer-site/museio/osc-paths/osc-paths---v3-6-0). 
+
 	# EEG of 4 sensors, in microvolt range 0-1682.0
 	/muse/eeg ffff
 	# multiply eeg value with quantization value to get uncompressed value
 	/muse/eeg/quantization iiii
+	
 	# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
 	/muse/acc fff
+
 	# frequency bands
 	/muse/elements/delta_absolute dddd 	# 1-4Hz
 	/muse/elements/theta_absolute dddd  # 5-8Hz
 	/muse/elements/alpha_absolute dddd  # 9-13Hz
 	/muse/elements/beta_absolute dddd  # 13-30Hz
 	/muse/elements/gamma_absolute dddd  # 30-50Hz
+
 	# status indicator for sensors, 1=good, 2=ok, >=3=bad
 	/muse/elements/horseshoe ffff
+
 	# blink, 1=blink detected
 	/muse/elements/blink i 
 	/muse/elements/jaw_clench
