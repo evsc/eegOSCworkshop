@@ -18,11 +18,11 @@ The Muse headband has 4 sensors, the values are communicated in the order: (1) l
 	# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
 	/muse/acc fff
 	# frequency bands
-	/muse/elements/delta dddd 	# 1-4Hz
-	/muse/elements/theta dddd  # 5-8Hz
-	/muse/elements/alpha dddd  # 9-13Hz
-	/muse/elements/beta dddd  # 13-30Hz
-	/muse/elements/gamma dddd  # 30-50Hz
+	/muse/elements/delta_absolute dddd 	# 1-4Hz
+	/muse/elements/theta_absolute dddd  # 5-8Hz
+	/muse/elements/alpha_absolute dddd  # 9-13Hz
+	/muse/elements/beta_absolute dddd  # 13-30Hz
+	/muse/elements/gamma_absolute dddd  # 30-50Hz
 	# status indicator for sensors, 1=good, 2=ok, >=3=bad
 	/muse/elements/horseshoe ffff
 	# blink, 1=blink detected
