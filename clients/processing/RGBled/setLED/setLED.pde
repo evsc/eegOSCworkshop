@@ -1,6 +1,7 @@
 
 /* send serial-data to connected Arduino
- * to set RGB values of LED
+ * to set RGB values of LED manually
+ * by clicking with mouse on color
  */ 
 
 import processing.serial.*;
