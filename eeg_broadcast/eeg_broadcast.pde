@@ -39,7 +39,7 @@ int battery_percent_remaining = 0;
 int status_indicator[];
 int dropped_samples = 0;
 float museEEG[];
-String[] museEEGband = { "Delta (1-4)", "Theta (508)", "Alpha (9-13)", "Beta (13-30)", "Gamma (30-50)"};
+String[] museEEGband = { "Delta (1-4)", "Theta (5-8)", "Alpha (9-13)", "Beta (13-30)", "Gamma (30-50)"};
 
 
 // thinkgear
