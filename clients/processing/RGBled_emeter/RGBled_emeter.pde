@@ -22,7 +22,7 @@ PFont myFont;
 
 int attention = -1;
 int meditation = -1;
-int average = 128;
+int average = -1;
 
 void setup() {
   size(256, 312);
@@ -48,8 +48,8 @@ void setup() {
   prepareExitHandler();
   connectOscClient();
   
-  // set LED lamp to average value
-  myPort.write(average + "," + (255-average) + ",0\n");
+  // turn LED off at the start
+  myPort.write(0 + "," + 0 + ",0\n");
 }
 
 
@@ -67,8 +67,8 @@ void draw() {
   text("average: ", 10, 150);
   text(average, 200, 150);
   
-  
-  fill(average, 255-average, 0);
+  if (average < 0) fill(255);
+  else fill(average, 255-average, 0);
   rect(10,200, width-20, 100);
  
  
