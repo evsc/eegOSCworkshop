@@ -45,7 +45,7 @@ void ofApp::setup(){
     tg.addEventListener(this);
 
     // print out all serial ports
-    // tg.device.listDevices();
+    tg.device.listDevices();
     // [notice ] ofSerial: [0] = rfcomm0
 
     // OSC
@@ -203,7 +203,7 @@ void ofApp::setGUI1() {
     gui1->addSpacer();
     gui1->addLabel("DEVICE PORT", OFX_UI_FONT_SMALL);
     // devicePort = gui1->addTextInput("DEVICE PORT", "/dev/rfcomm0");
-    devicePort = gui1->addTextInput("DEVICE PORT", "COM37");
+    devicePort = gui1->addTextInput("DEVICE PORT", "COM34");
     gui1->addLabel("BAUDRATE", OFX_UI_FONT_SMALL);
     baudRate = gui1->addTextInput("BAUDRATE", ofToString(baudRateInt));
 

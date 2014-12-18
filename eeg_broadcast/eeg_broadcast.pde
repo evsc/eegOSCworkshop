@@ -18,7 +18,7 @@ NetAddressList myNetAddressList = new NetAddressList();
 int myListeningPort = 5001;
 int myBroadcastPort = 12000;
 
-boolean doZeo = false;
+boolean doZeo = true;
 boolean doMuse = true;
 boolean doThinkgear = true;
 boolean ready = false;
@@ -150,7 +150,7 @@ void draw() {
 public void zeoSliceEvent(ZeoStream z) {
   slice = z.slice;
 
-  OscMessage myOscMessage = new OscMessage("/slice");
+  OscMessage myOscMessage = new OscMessage("/zeo/slice");
   for(int i=0; i<7; i++) {
     myOscMessage.add(slice.frequencyBin[i]);
   }
@@ -159,7 +159,7 @@ public void zeoSliceEvent(ZeoStream z) {
 
 public void zeoSleepStateEvent(ZeoStream z) {
   // println("zeoSleepStateEvent "+z.sleepState);  
-  OscMessage myOscMessage = new OscMessage("/state");
+  OscMessage myOscMessage = new OscMessage("/zeo/state");
   myOscMessage.add(z.sleepState);
   oscP5.send(myOscMessage, myNetAddressList);
 }
