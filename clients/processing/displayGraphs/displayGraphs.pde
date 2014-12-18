@@ -12,9 +12,9 @@ OscP5 oscP5;
 port number of a remote location in the network. */
 NetAddress myBroadcastLocation; 
 
-String broadcastIP = "127.0.0.1";
-int broadcastPort = 32000;
-
+String broadcastIP = "10.0.0.16";
+int broadcastPort = 5001;
+int listeningPort = 12000;
 
 
 PFont myFontBig;
@@ -50,7 +50,7 @@ void setup() {
   /* create a new instance of oscP5. 
    * 12000 is the port number you are listening for incoming osc messages.
    */
-  oscP5 = new OscP5(this,12000);
+  oscP5 = new OscP5(this,listeningPort);
 
   /* the address of the osc broadcast server */
   myBroadcastLocation = new NetAddress(broadcastIP, broadcastPort);
@@ -99,7 +99,7 @@ void keyPressed() {
 void oscEvent(OscMessage theOscMessage) {
   // theOscMessage.print();
   
-  if (theOscMessage.addrPattern().equals("/slice")) {
+  if (theOscMessage.addrPattern().equals("/zeo/slice")) {
     if(theOscMessage.checkTypetag("fffffff")) {
       Slice _slice = new Slice();
       print("slice: \t");
@@ -110,7 +110,7 @@ void oscEvent(OscMessage theOscMessage) {
       println();
       slices.add(_slice);
     }
-  } else if (theOscMessage.addrPattern().equals("/state")) {
+  } else if (theOscMessage.addrPattern().equals("/zeo/state")) {
     if(theOscMessage.checkTypetag("i")) {
       int sleepState = theOscMessage.get(0).intValue();
       println("sleepState\t" + sleepState);
@@ -123,7 +123,7 @@ void connectOscClient() {
   OscMessage m;
   println("connect");
   /* connect to the broadcaster */
-  m = new OscMessage("/zeo/connect",new Object[0]);
+  m = new OscMessage("/eeg/connect",new Object[0]);
   oscP5.flush(m,myBroadcastLocation);  
 } 
 
@@ -131,7 +131,7 @@ void disconnectOscClient() {
   OscMessage m;
   println("disconnect");
   /* disconnect from the broadcaster */
-  m = new OscMessage("/zeo/disconnect",new Object[0]);
+  m = new OscMessage("/eeg/disconnect",new Object[0]);
   oscP5.flush(m,myBroadcastLocation);  
 }
 

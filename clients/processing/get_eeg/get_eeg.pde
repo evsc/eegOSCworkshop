@@ -23,8 +23,19 @@ int tgEEG[];
 String[] tgEEGband = { "Delta (0.5-2.75)", "Theta (3.5-6.75)", "Low Alpha (7.5-9.25)", "High Alpha (10-11.75)", "Low Beta (13-16.75)", "High Beta (18-29.75)", "Low Gamma (31-39.75)", "Mid Gamma (41-49.75)"};
 
 
+// zeo
+int zeoSleepState = 0;
+float[] zeoEEG;
+String[] zeoStageName = { "", "Wake", "REM", "Light", "Deep" };
+String[] zeoEEGband = { "Delta", "Theta", "Alpha", "Beta1", "Beta2", "Beta3", "Gamma" };
+String[] zeoEEGHertz = { "2-4", "4-8", "8-13", "13-18", "18-21", "11-14", "30-50"};
+
+
+
+
+
 void setup() {
-  size(1000,400);
+  size(1200,400);
   
   clearValues();
   
@@ -53,15 +64,20 @@ void draw() {
   
   textFont(bigFont);
   fill(255,0,0);
-  text("ThinkGear", 300,50);
+  
+  text("ThinkGear", 450,50);
+  text("Zeo", 850,50);
   
   textFont(smFont);
   fill(0);
+  int x1 = 10;
+  int x2 = x1+250;
+  int y1 = 100;
   
   // thinkgear
-  int x1 = 300;
-  int x2 = x1+260;
-  int y1 = 100;
+  x1 = 450;
+  x2 = x1+260;
+  y1 = 100;
   text("poorSignal", x1, y1+=20);
   text(tgPoorSignal, x2, y1);
   text("attention", x1, y1+=20);
@@ -75,6 +91,17 @@ void draw() {
     text(tgEEG[i], x2, y1);
   }
   
+  // thinkgear
+  x1 = 850;
+  x2 = x1+200;
+  y1 = 100;
+  text("sleepState", x1, y1+=20);
+  text(zeoSleepState + " (" + zeoStageName[zeoSleepState]+ ")", x2, y1);
+  y1+=20;
+  for(int i=0; i<7; i++) {
+    text(zeoEEGband[i] + " (" + zeoEEGHertz[i] + ")", x1, y1+=20);
+    text(zeoEEG[i], x2, y1);
+  }
   
 }
 
@@ -105,6 +132,22 @@ void oscEvent(OscMessage theOscMessage) {
   } else if (theOscMessage.addrPattern().equals("/thinkgear/eeg")) {
     for (int i=0; i<8; i++) tgEEG[i] = int(theOscMessage.get(i).floatValue());
   }
+  
+  // zeo
+  if (theOscMessage.addrPattern().equals("/zeo/slice")) {
+    if(theOscMessage.checkTypetag("fffffff")) {
+      for(int i=0; i<7; i++) {
+        zeoEEG[i] = theOscMessage.get(i).floatValue();
+      }
+    }
+  } else if (theOscMessage.addrPattern().equals("/zeo/state")) {
+    if(theOscMessage.checkTypetag("i")) {
+      zeoSleepState = theOscMessage.get(0).intValue();
+    }
+  }
+  
+  
+  
 }
 
 
@@ -116,6 +159,11 @@ void clearValues() {
   tgMeditation = 0;
   tgEEG = new int[8];
   for (int i=0; i<8; i++) tgEEG[i] = 0;
+  
+  // zeo
+  zeoSleepState = 0;
+  zeoEEG = new float[7];
+  for (int i=0; i<7; i++) zeoEEG[i] = 0;
   
 }
 
