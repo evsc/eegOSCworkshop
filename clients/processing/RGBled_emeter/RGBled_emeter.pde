@@ -14,15 +14,17 @@ Serial myPort;
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
 
-String broadcastIP = "10.0.0.16";
+String broadcastIP = "192.168.1.3";
 int broadcastPort = 5001;
 int listeningPort = 12000;
 
 PFont myFont;
 
+int tgPoorSignal;
 int attention = -1;
 int meditation = -1;
 int average = -1;
+int LEDval = -1;
 
 void setup() {
   size(256, 312);
@@ -60,15 +62,17 @@ void draw() {
   noStroke();
   
   fill(255);
-  text("attention: ", 10, 50);
-  text(attention, 200, 50);
-  text("meditation: ", 10, 100);
-  text(meditation, 200, 100);
+  text("signal quality: ", 10, 20);
+  text(tgPoorSignal, 200, 20);
+  text("attention: ", 10, 80);
+  text(attention, 200, 80);
+  text("meditation: ", 10, 115);
+  text(meditation, 200, 115);
   text("average: ", 10, 150);
   text(average, 200, 150);
   
-  if (average < 0) fill(255);
-  else fill(average, 255-average, 0);
+  if (LEDval < 0) fill(255);
+  else fill(LEDval, 255-LEDval, 0);
   rect(10,200, width-20, 100);
  
  
@@ -80,12 +84,16 @@ void oscEvent(OscMessage theOscMessage) {
   
   if (theOscMessage.addrPattern().equals("/thinkgear/attention")) {
     attention = theOscMessage.get(0).intValue();
-    average = int(attention+meditation)/2;
-    myPort.write(average + "," + (255-average) + ",0\n");
+    average = int((attention+meditation)/2);
+    LEDval = int(255 - average*2.55);
+    myPort.write(LEDval + "," + (255-LEDval) + ",0\n");
   } else if (theOscMessage.addrPattern().equals("/thinkgear/meditation")) {
     meditation = theOscMessage.get(0).intValue();
-    average = int(attention+meditation)/2;
-    myPort.write(average + "," + (255-average) + ",0\n");
+    average = int((attention+meditation)/2);
+    LEDval = int(255 - average*2.55);
+    myPort.write(LEDval + "," + (255-LEDval) + ",0\n");
+  } else if (theOscMessage.addrPattern().equals("/thinkgear/poorsignal")) {
+    tgPoorSignal = theOscMessage.get(0).intValue();
   }
   
   
