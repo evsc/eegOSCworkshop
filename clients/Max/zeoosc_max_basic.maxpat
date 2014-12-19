@@ -21,6 +21,19 @@
 		"boxes" : [ 			{
 				"box" : 				{
 					"maxclass" : "comment",
+					"text" : "Zeo",
+					"numinlets" : 1,
+					"id" : "obj-35",
+					"numoutlets" : 0,
+					"fontsize" : 32.315121,
+					"patching_rect" : [ 22.0, 142.370956, 160.0, 44.0 ],
+					"fontname" : "Arial"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"maxclass" : "comment",
 					"text" : "Gamma\n30-50 Hz",
 					"linecount" : 2,
 					"numinlets" : 1,
