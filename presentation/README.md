@@ -56,13 +56,14 @@ Amplitude and frequency are the primary characteristics of brain waves. The more
 
 Other methods for measuring the brain might be more exact, but are usually bigger, heavier, scarier and more expensive. 
 
-| Method | Name | how it works |
-| ------- | ------- | ------- | 
-| **CT** | X-Ray Computed Tomography | | |
-| **PET** | Position Emission Tomography | | |
-| **MRI / fMRI** | (Functional) Magnetic Resonance Imaging | measures blood flow changes | extreme spacial resolution |
-| **MEG** | Magneto Encephalo Graphy | measures magnetic field | requires room of shielding |
-| **fNIRS** | Functional Near-Infrared Spectroscopy | | low resolution (space, time) |
+| Short | Full Name | Technique | Temporal resolution | Spatial resolution | Pro | Con |
+| ------- | ------- | ------- | ------- | ------- | ------- | ------- | 
+| **CT** | X-Ray Computed Tomography | dense objects (bones) block x-rays |  |  | rapid, noninvasive | radiation exposure |
+| **PET** | Position Emission Tomography | measures blood flow with ingested/injected radioisotopes | >10s | 10mm |  | expensive, minor radiation exposure |
+| **MRI / fMRI** | (Functional) Magnetic Resonance Imaging | measures blood flow changes | ~2-3s | ~5mm | noninvasive, good spatial resolution | expensive |
+| **MEG** | Magneto Encephalo Graphy | measures magnetic field produced by brain activity | 0.01s | 10mm | noninvasive | expensive, requires room of shielding |
+| **fNIRS** | Functional Near-Infrared Spectroscopy | scattered near-infrared light | ~1s | ~20mm | noninvasive| low resolution (space, time), surface of cortex only |
+| **EEG** | Electroencaphalogram | measures electrical brain wave activity on outer layer of brain | `0.01s | ~20mm | inexpensive, noninvasive, portable | poor spatial resolution, limited to outer layer |
 |  | Invasive Sensors | microarrays, neurochips, ECoG, ... | 
 
 
