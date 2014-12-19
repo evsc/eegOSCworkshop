@@ -13,13 +13,9 @@ The Muse headband has 4 sensors, the values are communicated in the order: (1) l
 
 All OSC values you can receive from the muse-io driver (v3-6-0), are documented [here](https://sites.google.com/a/interaxon.ca/muse-developer-site/museio/osc-paths/osc-paths---v3-6-0). 
 
-	# EEG of 4 sensors, in microvolt range 0-1682.0
-	/muse/eeg ffff
-	# multiply eeg value with quantization value to get uncompressed value
-	/muse/eeg/quantization iiii
-	
-	# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
-	/muse/acc fff
+
+	# status indicator for sensors, 1=good, 2=ok, >=3=bad
+	/muse/elements/horseshoe ffff
 
 	# frequency bands
 	/muse/elements/delta_absolute dddd 	# 1-4Hz
@@ -28,13 +24,23 @@ All OSC values you can receive from the muse-io driver (v3-6-0), are documented 
 	/muse/elements/beta_absolute dddd  # 13-30Hz
 	/muse/elements/gamma_absolute dddd  # 30-50Hz
 
-	# status indicator for sensors, 1=good, 2=ok, >=3=bad
-	/muse/elements/horseshoe ffff
-
-	# blink, 1=blink detected
+	# detection of muscle movement: blink, jaw_clench, 1=detected
 	/muse/elements/blink i 
-	/muse/elements/jaw_clench
+	/muse/elements/jaw_clench i
 
+	# raw FFT (Fast Fourier Transform), amplitude for each frequency, 129 bins btw. 0-110Hz
+	/muse/elements/raw_fft0 fffffffffffffffffffffffffffffffff.........
+	/muse/elements/raw_fft1
+	/muse/elements/raw_fft2
+	/muse/elements/raw_fft3
+
+	# EEG of 4 sensors, in microvolt range 0-1682.0
+	/muse/eeg ffff
+	# multiply eeg value with quantization value to get uncompressed value
+	/muse/eeg/quantization iiii
+	
+	# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
+	/muse/acc fff
 
 
 ### thinkgear
@@ -48,7 +54,6 @@ All OSC values you can receive from the muse-io driver (v3-6-0), are documented 
 	/thinkgear/eeg iiiiiiii
 
 ### zeo
-
 
 	# ZEO's 7 frequency bins fffffff
 	/slice 0. 0. 0. 0. 0. 0. 0. 

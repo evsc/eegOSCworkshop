@@ -54,7 +54,7 @@ Amplitude and frequency are the primary characteristics of brain waves. The more
 
 ## Measuring the Brain
 
-Other methods for measuring the brain might be more exact, but are usually bigger, heavier, scarier and more expensive. 
+Compared with EEG, other methods for measuring/imaging the brain might be more exact, but are usually bigger, heavier, scarier and more expensive. 
 
 | Short | Full Name | Technique | Temporal resolution | Spatial resolution | Pro | Con |
 | ------- | ------- | ------- | ------- | ------- | ------- | ------- | 
@@ -62,8 +62,8 @@ Other methods for measuring the brain might be more exact, but are usually bigge
 | **PET** | Position Emission Tomography | measures blood flow with ingested/injected radioisotopes | >10s | 10mm |  | expensive, minor radiation exposure |
 | **MRI / fMRI** | (Functional) Magnetic Resonance Imaging | measures blood flow changes | ~2-3s | ~5mm | noninvasive, good spatial resolution | expensive |
 | **MEG** | Magneto Encephalo Graphy | measures magnetic field produced by brain activity | 0.01s | 10mm | noninvasive | expensive, requires room of shielding |
-| **fNIRS** | Functional Near-Infrared Spectroscopy | scattered near-infrared light | ~1s | ~20mm | noninvasive| low resolution (space, time), surface of cortex only |
-| **EEG** | Electroencaphalogram | measures electrical brain wave activity on outer layer of brain | `0.01s | ~20mm | inexpensive, noninvasive, portable | poor spatial resolution, limited to outer layer |
+| **fNIRS** | Functional Near-Infrared Spectroscopy | scattered near-infrared light to measure concentration and oxygenation of hemoglobin | ~1s | ~20mm | noninvasive| low resolution, surface of cortex only |
+| **EEG** | Electroencaphalogram | measures electrical brain wave activity on outer layer of brain | 0.01s | ~20mm | inexpensive, noninvasive, portable | poor spatial resolution, limited to outer layer |
 |  | Invasive Sensors | microarrays, neurochips, ECoG, ... | 
 
 
