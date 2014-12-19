@@ -235,6 +235,18 @@ void oscEvent(OscMessage theOscMessage) {
     else if (theOscMessage.addrPattern().equals("/muse/elements/jaw_clench")) {
       oscP5.send(theOscMessage, myNetAddressList);
     }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft0")) {
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft1")) {
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft2")) {
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft3")) {
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
     
   } else if (doThinkgear && theOscMessage.addrPattern().length() > 9 && theOscMessage.addrPattern().substring(0,10).equals("/thinkgear")) {
 
