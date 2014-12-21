@@ -15,7 +15,7 @@ The **ZEO headband**'s main purpose is to monitor your brainwaves during sleep, 
 
 The **Myndplay BrainbandXL** is build around a [NeuroSky ThinkGear chip](http://neurosky.com/products-markets/eeg-biosensors/hardware/) and a Bluetooth 4.0 module ([Blue Creation BC127](http://www.bluecreation.com/product_info.php?products_id=38)). The soft headband has 2 conductive-fabric electrodes (=only 1 channel) sitting on your forehead. In addition you clip a grounding electrode onto your ear, which  becomes slightly uncomfortable after a while. Besides 8 frequency bands, the ThinkGear chip provides the proprietary eSense algorithms that define a *meditation* (relaxation) and *attention* (focus, concentration) level.  These are very useful when wanting to achieve fast prototyping results. In addition the ThinkGear Communications Protocol can also detect eye blinks (not implemented here). To change between 50 and 60 Hz zones, a [solder spot](https://www.flickr.com/photos/evsc/15347233443/) must be changed on the ThinkGear chip. 
 
-**Muse** is the most advanced of the three, as it provides 4 signal channels (2 on your forehead, and 1 behind each of your ears). The supplied MuseIO driver streams data via OSC. For each channel you get raw signal data, 6 frequency bands and also FFT spectrum data. In addtion it reports blink and jaw_clench events. The 50/60Hz filter can be set within the driver. As it is the most powerful, it also seems to be the most sensitive. You are advised to sit up straight and don't move around, while doing measurements. It really can take a long time to calibrate, but at least you catch a climpse of all the software processes that are necessary to receive reliable data. 
+**Muse** is the most advanced of the three, as it provides 4 signal channels (2 on your forehead, and 1 behind each of your ears) and also accelerometer data. The supplied MuseIO driver streams data via OSC. For each channel you get raw signal data, 6 frequency bands and also FFT spectrum data. In addtion it reports blink and jaw_clench events. The 50/60Hz filter can be set within the driver. As it is the most powerful, it also seems to be the most sensitive. You are advised to sit up straight and don't move around, while doing measurements. It really can take a long time to calibrate, but at least you catch a climpse of all the software processes that are necessary to receive reliable data. 
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/bci_compare.png"/>
@@ -56,7 +56,7 @@ Then your client will be able to receive the following OSC messages:
 
 ### ZEO
 
-```cpp
+```shell
 # ZEO's 7 frequency bins: 
 # (1) delta (2) theta (3) alpha (4) beta1 (5) beta2 (6) beta3 (7) gamma
 /zeo/slice fffffff
@@ -66,7 +66,7 @@ Then your client will be able to receive the following OSC messages:
 
 ### Myndplay BrainBandXL
 
-```cpp
+```shell
 # quality of signal. 200=no signal, 0=good
 /thinkgear/poorsignal i
 # thinkgear proprietary eSense meters: attention, meditation, range: 0-100
@@ -89,9 +89,9 @@ ThinkGear EEG frequency bands
 * mid-gamma (41 - 49.75Hz)
 
 ### Muse
-The Muse headband has 4 sensors, the values are communicated in the order: (1) left ear (2) left forehead (3) right forehead (4) right ear. All OSC values you can receive from the muse-io driver (v3-6-0), are documented [here](https://sites.google.com/a/interaxon.ca/muse-developer-site/museio/osc-paths/osc-paths---v3-6-0). [Note: the eeg_broadcast only passes on selected messages.]
+The Muse headband has 4 sensors, the values are communicated in the order: (1) left ear (2) left forehead (3) right forehead (4) right ear. All OSC values you can receive from the muse-io driver (v3-6-0), are documented [here](https://sites.google.com/a/interaxon.ca/muse-developer-site/museio/osc-paths/osc-paths---v3-6-0). [Note: the eeg_broadcast application only passes on selected messages.]
 
-```cpp
+```shell
 # status indicator for sensors, 1=good, 2=ok, >=3=bad
 /muse/elements/horseshoe ffff
 
@@ -106,7 +106,8 @@ The Muse headband has 4 sensors, the values are communicated in the order: (1) l
 /muse/elements/blink i 
 /muse/elements/jaw_clench i
 
-# raw FFT (Fast Fourier Transform), amplitude for each frequency, 129 bins btw. 0-110Hz
+# FFT (Fast Fourier Transform) spectrum data, 
+# amplitude for each frequency, 129 bins btw. 0-110Hz
 /muse/elements/raw_fft0 fffffffffffffffffffffffffffffffff.........
 /muse/elements/raw_fft1
 /muse/elements/raw_fft2
@@ -117,7 +118,8 @@ The Muse headband has 4 sensors, the values are communicated in the order: (1) l
 # multiply eeg value with quantization value to get uncompressed value
 /muse/eeg/quantization iiii
 	
-# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
+# accelerometer values 
+# (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
 /muse/acc fff
 ```
 
