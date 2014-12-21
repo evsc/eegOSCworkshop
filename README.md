@@ -1,75 +1,74 @@
 
 # EEG via OSC workshop
 
-broadcasting EEG data from MyndPlay BrainBand XL (NeuroSky chip), Muse EEG, or ZEO bedside display via OSC and allowing multiple clients to receive and interpret the data
+This repository contains software that enables the broadcasting of data from different EEG sensors  via OSC.  There are also multiple simple software clients to receive and interpret the data. 
 
-ofxThinkgear addon: https://github.com/evsc/ofxThinkgear
+## EEG headsets
+
+The 3 EEG headsets I've used so far:
+
+ * [ZEO](http://en.wikipedia.org/wiki/Zeo,_Inc.) bedside display
+ * [MyndPlay BrainBandXL](http://myndplay.com/products.php?prod=9)
+ * [Muse](http://www.choosemuse.com)
+
+The **ZEO headband**'s main purpose is to monitor your brainwaves during sleep, it is quite comfortable to wear, and a proprietary algorithm calculates your sleep stages during the night (deep / light / rem / wake). You can access live brainwave data over a serial port. Problem is, the company went bankrupt in 2012, you might only be able to get one of those off ebay. Also, the headband's conductive-fabric sensors get quite some wear during sleep and you are meant to replace them occasionally, but now it's hard to still find originals to buy. 
+
+The **Myndplay BrainbandXL** is build around a [NeuroSky ThinkGear chip](http://neurosky.com/products-markets/eeg-biosensors/hardware/) and a Bluetooth 4.0 module ([Blue Creation BC127](http://www.bluecreation.com/product_info.php?products_id=38)). The soft headband has 2 conductive-fabric electrodes (=only 1 channel) sitting on your forehead. In addition you clip a grounding electrode onto your ear, which  becomes slightly uncomfortable after a while. Besides 8 frequency bands, the ThinkGear chip provides the proprietary eSense algorithms that define a *meditation* (relaxation) and *attention* (focus, concentration) level.  These are very useful when wanting to achieve fast prototyping results. In addition the ThinkGear Communications Protocol can also detect eye blinks (not implemented here). To change between 50 and 60 Hz zones, a [solder spot](https://www.flickr.com/photos/evsc/15347233443/) must be changed on the ThinkGear chip. 
+
+**Muse** is the most advanced of the three, as it provides 4 signal channels (2 on your forehead, and 1 behind each of your ears). The supplied MuseIO driver streams data via OSC. For each channel you get raw signal data, 6 frequency bands and also FFT spectrum data. In addtion it reports blink and jaw_clench events. The 50/60Hz filter can be set within the driver. As it is the most powerful, it also seems to be the most sensitive. You are advised to sit up straight and don't move around, while doing measurements. It really can take a long time to calibrate, but at least you catch a climpse of all the software processes that are necessary to receive reliable data. 
+
+<p align="center">
+	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/bci_compare.png"/>
+</p>
+
+### To run ZEO headset
+You will need a FTDI usb cable to connect the ZEO bedside display to your computer. Then you need the [zeoLibrary processing library](https://github.com/evsc/zeoLibrary), so you can run the [eeg_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/eeg_broadcast) processing app to receive data via the Serial port, and broadcast it via OSC. 
+
+### To run Myndplay BrainBandXL
+You connect to the BrainBandXL via bluetooth. To receive and decode data over bluetooth run the openFrameworks app [thinkgear_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/thinkgear_broadcast) (requires 
+[ofxThinkgear addon](https://github.com/evsc/ofxThinkgear)). The outgoing OSC data is meant to be received by the [eeg_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/eeg_broadcast) processing app, from where you could broadcast data from all 3 EEG sensors simultaneously. 
+
+
+### To run Muse headset
+You connect to Muse via bluetooth. Get the [MuseSDK](https://sites.google.com/a/interaxon.ca/muse-developer-site/download) and run the MuseIO driver via the commandline, to broadcast OSC data. The outgoing OSC data is meant to be received by the [eeg_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/eeg_broadcast) processing app, from where you could broadcast data from all 3 EEG sensors simultaneously. You can also use the SDK supplied [MuseLab](https://sites.google.com/a/interaxon.ca/muse-developer-site/muselab) visualization tool to quickly monitor the data. 
+
+
 
 
 ## OSC messages
 
-### muse
-The Muse headband has 4 sensors, the values are communicated in the order: (1) left ear (2) left forehead (3) right forehead (4) right ear. 
+To connect/disconnect your software client to/from the eeg_broadcast OSC server, send these messages
 
-All OSC values you can receive from the muse-io driver (v3-6-0), are documented [here](https://sites.google.com/a/interaxon.ca/muse-developer-site/museio/osc-paths/osc-paths---v3-6-0). 
+```
+/eeg/connect
+/eeg/disconnect
+```
 
-
-	# status indicator for sensors, 1=good, 2=ok, >=3=bad
-	/muse/elements/horseshoe ffff
-
-	# frequency bands
-	/muse/elements/delta_absolute dddd 	# 1-4Hz
-	/muse/elements/theta_absolute dddd  # 5-8Hz
-	/muse/elements/alpha_absolute dddd  # 9-13Hz
-	/muse/elements/beta_absolute dddd  # 13-30Hz
-	/muse/elements/gamma_absolute dddd  # 30-50Hz
-
-	# detection of muscle movement: blink, jaw_clench, 1=detected
-	/muse/elements/blink i 
-	/muse/elements/jaw_clench i
-
-	# raw FFT (Fast Fourier Transform), amplitude for each frequency, 129 bins btw. 0-110Hz
-	/muse/elements/raw_fft0 fffffffffffffffffffffffffffffffff.........
-	/muse/elements/raw_fft1
-	/muse/elements/raw_fft2
-	/muse/elements/raw_fft3
-
-	# EEG of 4 sensors, in microvolt range 0-1682.0
-	/muse/eeg ffff
-	# multiply eeg value with quantization value to get uncompressed value
-	/muse/eeg/quantization iiii
-	
-	# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
-	/muse/acc fff
+Then your client will be able to receive the following OSC messages:
 
 
-### thinkgear
+### ZEO
 
-	# quality of signal. 200=no signal, 0=good
-	/thinkgear/poorsignal i
-	# thinkgear proprietary eSense meters: attention, meditation, range: 0-100
-	/thinkgear/attention i
-	/thinkgear/meditation i
-	# frequency bands: (1) delta (2) theta (3) lowAlpha (4) highAlpha (5) lowBeta (6) highBeta (7) lowGamma (8) midGamma
-	/thinkgear/eeg iiiiiiii
+```
+# ZEO's 7 frequency bins fffffff
+/zeo/slice 0. 0. 0. 0. 0. 0. 0. 
+# ZEO's sleep state i
+/zeo/state 0
+```
 
-### zeo
+### Myndplay BrainBandXL
 
-	# ZEO's 7 frequency bins fffffff
-	/slice 0. 0. 0. 0. 0. 0. 0. 
-	# ZEO's sleep state i
-	/state 0
+```
+# quality of signal. 200=no signal, 0=good
+/thinkgear/poorsignal i
+# thinkgear proprietary eSense meters: attention, meditation, range: 0-100
+/thinkgear/attention i
+/thinkgear/meditation i
+# frequency bands: (1) delta (2) theta (3) lowAlpha (4) highAlpha (5) lowBeta (6) highBeta (7) lowGamma (8) midGamma
+/thinkgear/eeg iiiiiiii
+```
 
-
-
-## ThinkGear EEG
-
-Myndplay BrainBandXL
-
-EEG headset, soft headband with 2 dry sensor contact points (1 single sensor) and an ear clip. Runs with ThinkGear chip, 10 hour battery, Bluetooth 4.0 up to 30m range ([Blue Creation BC127](http://www.bluecreation.com/product_info.php?products_id=38)), 512Hz sampling rate.
-
-
-EEG frequency bands  
+ThinkGear EEG frequency bands  
 
 * delta (0.5 - 2.75Hz)
 * theta (3.5 - 6.75Hz)
@@ -80,14 +79,42 @@ EEG frequency bands
 * low-gamma (31 - 39.75Hz)
 * mid-gamma (41 - 49.75Hz)
 
+### Muse
+The Muse headband has 4 sensors, the values are communicated in the order: (1) left ear (2) left forehead (3) right forehead (4) right ear. All OSC values you can receive from the muse-io driver (v3-6-0), are documented [here](https://sites.google.com/a/interaxon.ca/muse-developer-site/museio/osc-paths/osc-paths---v3-6-0). [Note: the eeg_broadcast only passes on selected messages.]
 
-Interpretive data
+```
+# status indicator for sensors, 1=good, 2=ok, >=3=bad
+/muse/elements/horseshoe ffff
 
-* Attention (focus, concentration)
-* Meditation (relaxation)
-* eyeblink detection (only when access via ThinkGearConnector driver)
+# frequency bands
+/muse/elements/delta_absolute dddd 	# 1-4Hz
+/muse/elements/theta_absolute dddd  # 5-8Hz
+/muse/elements/alpha_absolute dddd  # 9-13Hz
+/muse/elements/beta_absolute dddd  # 13-30Hz
+/muse/elements/gamma_absolute dddd  # 30-50Hz
+
+# detection of muscle movement: blink, jaw_clench, 1=detected
+/muse/elements/blink i 
+/muse/elements/jaw_clench i
+
+# raw FFT (Fast Fourier Transform), amplitude for each frequency, 129 bins btw. 0-110Hz
+/muse/elements/raw_fft0 fffffffffffffffffffffffffffffffff.........
+/muse/elements/raw_fft1
+/muse/elements/raw_fft2
+/muse/elements/raw_fft3
+
+# EEG of 4 sensors, in microvolt range 0-1682.0
+/muse/eeg ffff
+# multiply eeg value with quantization value to get uncompressed value
+/muse/eeg/quantization iiii
+	
+# accelerometer values (1) forward/backward (2) up/down (3) left/right, range: -2000 to 1996 mg
+/muse/acc fff
+```
 
 
+
+***
 
 # Setup (Ubuntu 14)
 
