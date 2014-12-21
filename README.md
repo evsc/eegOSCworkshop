@@ -30,7 +30,14 @@ You connect to the BrainBandXL via bluetooth. To receive and decode data over bl
 
 
 ### To run Muse headset
-You connect to Muse via bluetooth. Get the [MuseSDK](https://sites.google.com/a/interaxon.ca/muse-developer-site/download) and run the MuseIO driver via the commandline, to broadcast OSC data. The outgoing OSC data is meant to be received by the [eeg_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/eeg_broadcast) processing app, from where you could broadcast data from all 3 EEG sensors simultaneously. You can also use the SDK supplied [MuseLab](https://sites.google.com/a/interaxon.ca/muse-developer-site/muselab) visualization tool to quickly monitor the data. 
+You connect to Muse via bluetooth. Get the [MuseSDK](https://sites.google.com/a/interaxon.ca/muse-developer-site/download) and run the MuseIO driver via the commandline, to broadcast OSC data.
+
+```shell 
+# stream OSC data on 2 ports (5001 for clients, 5002 for extra MuseLab monitoring)
+muse-io --preset 14 --50hz --dsp --osc osc.udp://localhost:5001,osc.udp://localhost:5002
+```
+
+The outgoing OSC data is meant to be received by the [eeg_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/eeg_broadcast) processing app, from where you could broadcast data from all 3 EEG sensors simultaneously. You can also use the SDK supplied [MuseLab](https://sites.google.com/a/interaxon.ca/muse-developer-site/muselab) visualization tool to quickly monitor the data. 
 
 
 
@@ -39,7 +46,7 @@ You connect to Muse via bluetooth. Get the [MuseSDK](https://sites.google.com/a/
 
 To connect/disconnect your software client to/from the eeg_broadcast OSC server, send these messages
 
-```
+```shell
 /eeg/connect
 /eeg/disconnect
 ```
@@ -49,22 +56,24 @@ Then your client will be able to receive the following OSC messages:
 
 ### ZEO
 
-```
-# ZEO's 7 frequency bins fffffff
-/zeo/slice 0. 0. 0. 0. 0. 0. 0. 
-# ZEO's sleep state i
-/zeo/state 0
+```cpp
+# ZEO's 7 frequency bins: 
+# (1) delta (2) theta (3) alpha (4) beta1 (5) beta2 (6) beta3 (7) gamma
+/zeo/slice fffffff
+# ZEO's sleep state
+/zeo/state i
 ```
 
 ### Myndplay BrainBandXL
 
-```
+```cpp
 # quality of signal. 200=no signal, 0=good
 /thinkgear/poorsignal i
 # thinkgear proprietary eSense meters: attention, meditation, range: 0-100
 /thinkgear/attention i
 /thinkgear/meditation i
-# frequency bands: (1) delta (2) theta (3) lowAlpha (4) highAlpha (5) lowBeta (6) highBeta (7) lowGamma (8) midGamma
+# 8 frequency bands: (1) delta (2) theta (3) lowAlpha (4) highAlpha 
+# (5) lowBeta (6) highBeta (7) lowGamma (8) midGamma
 /thinkgear/eeg iiiiiiii
 ```
 
@@ -82,7 +91,7 @@ ThinkGear EEG frequency bands
 ### Muse
 The Muse headband has 4 sensors, the values are communicated in the order: (1) left ear (2) left forehead (3) right forehead (4) right ear. All OSC values you can receive from the muse-io driver (v3-6-0), are documented [here](https://sites.google.com/a/interaxon.ca/muse-developer-site/museio/osc-paths/osc-paths---v3-6-0). [Note: the eeg_broadcast only passes on selected messages.]
 
-```
+```cpp
 # status indicator for sensors, 1=good, 2=ok, >=3=bad
 /muse/elements/horseshoe ffff
 
