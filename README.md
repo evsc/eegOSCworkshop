@@ -21,12 +21,20 @@ The **Myndplay BrainbandXL** is build around a [NeuroSky ThinkGear chip](http://
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/bci_compare.png"/>
 </p>
 
-### To run ZEO headset
+### To stream ZEO headset data
 You will need a FTDI usb cable to connect the ZEO bedside display to your computer. Then you need the [zeoLibrary processing library](https://github.com/evsc/zeoLibrary), so you can run the [eeg_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/eeg_broadcast) processing app to receive data via the Serial port, and broadcast it via OSC. 
 
-### To run Myndplay BrainBandXL
+<p align="center">
+	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/eeg_broadcast.PNG"/>
+</p>
+
+### To stream Myndplay BrainBandXL data
 You connect to the BrainBandXL via bluetooth. To receive and decode data over bluetooth run the openFrameworks app [thinkgear_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/thinkgear_broadcast) (requires 
 [ofxThinkgear addon](https://github.com/evsc/ofxThinkgear)). The outgoing OSC data is meant to be received by the [eeg_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/eeg_broadcast) processing app, from where you could broadcast data from all 3 EEG sensors simultaneously. 
+
+<p align="center">
+	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/thinkgear_broadcast.PNG"/>
+</p>
 
 
 ### To run Muse headset
@@ -39,7 +47,9 @@ muse-io --preset 14 --50hz --dsp --osc osc.udp://localhost:5001,osc.udp://localh
 
 The outgoing OSC data is meant to be received by the [eeg_broadcast](https://github.com/evsc/eegOSCworkshop/tree/master/eeg_broadcast) processing app, from where you could broadcast data from all 3 EEG sensors simultaneously. You can also use the SDK supplied [MuseLab](https://sites.google.com/a/interaxon.ca/muse-developer-site/muselab) visualization tool to quickly monitor the data. 
 
-
+<p align="center">
+	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/muselab.PNG"/>
+</p>
 
 
 ## OSC messages
