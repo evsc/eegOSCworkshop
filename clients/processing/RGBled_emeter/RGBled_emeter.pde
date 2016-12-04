@@ -14,7 +14,7 @@ Serial myPort;
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
 
-String broadcastIP = "192.168.1.3";
+String broadcastIP = "127.0.0.1";
 int broadcastPort = 5001;
 int listeningPort = 12000;
 

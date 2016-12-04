@@ -5,17 +5,20 @@ This repository contains software that enables the broadcasting of data from dif
 
 ## EEG headsets
 
-The 3 EEG headsets I've used so far:
+The 4 EEG headsets I've used so far:
 
  * [ZEO](http://en.wikipedia.org/wiki/Zeo,_Inc.) bedside display
  * [MyndPlay BrainBandXL](http://myndplay.com/products.php?prod=9)
  * [Muse](http://www.choosemuse.com)
+ * [Emotiv Insight](https://emotiv.com/insight.php)
 
 The **ZEO headband**'s main purpose is to monitor your brainwaves during sleep, it is quite comfortable to wear, and a proprietary algorithm calculates your sleep stages during the night (deep / light / rem / wake). You can access live brainwave data over a serial port. Problem is, the company went bankrupt in 2012, you might only be able to get one of those off ebay. Also, the headband's conductive-fabric sensors get quite some wear during sleep and you are meant to replace them occasionally, but now it's hard to still find originals to buy. 
 
-The **Myndplay BrainbandXL** is build around a [NeuroSky ThinkGear chip](http://neurosky.com/products-markets/eeg-biosensors/hardware/) and a Bluetooth 4.0 module ([Blue Creation BC127](http://www.bluecreation.com/product_info.php?products_id=38)). The soft headband has 2 conductive-fabric electrodes (=only 1 channel) sitting on your forehead. In addition you clip a grounding electrode onto your ear, which  becomes slightly uncomfortable after a while. Besides 8 frequency bands, the ThinkGear chip provides the proprietary eSense algorithms that define a *meditation* (relaxation) and *attention* (focus, concentration) level.  These are very useful when wanting to achieve fast prototyping results. In addition the ThinkGear Communications Protocol can also detect eye blinks (not implemented here). To change between 50 and 60 Hz zones, a [solder spot](https://www.flickr.com/photos/evsc/15347233443/) must be changed on the ThinkGear chip. 
+The **Myndplay BrainbandXL** is build around a [NeuroSky ThinkGear chip](http://neurosky.com/products-markets/eeg-biosensors/hardware/) and a Bluetooth 4.0 module ([Blue Creation BC127](http://www.bluecreation.com/product_info.php?products_id=38)). The soft headband has 2 conductive-fabric electrodes (=only 1 channel) sitting on your forehead. In addition you clip a grounding electrode onto your ear, which becomes slightly uncomfortable after a while. Data is transmitted about once per second. Besides 8 frequency bands, the ThinkGear chip provides the proprietary eSense algorithms that define a *meditation* (relaxation) and *attention* (focus, concentration) level. These are very useful when wanting to achieve fast prototyping results. In addition the ThinkGear Communications Protocol can also detect eye blinks (not implemented here). To change between 50 and 60 Hz zones, a [solder spot](https://www.flickr.com/photos/evsc/15347233443/) must be changed on the ThinkGear chip. 
 
-**Muse** is the most advanced of the three, as it provides 4 signal channels (2 on your forehead, and 1 behind each of your ears) and also accelerometer data. The supplied MuseIO driver streams data via OSC. For each channel you get raw signal data, 6 frequency bands and also FFT spectrum data. In addtion it reports blink and jaw_clench events. The 50/60Hz filter can be set within the driver. As it is the most powerful, it also seems to be the most sensitive. You are advised to sit up straight and don't move around, while doing measurements. It really can take a long time to calibrate, but at least you catch a climpse of all the software processes that are necessary to receive reliable data. 
+**Muse** is the more advanced than the previous two, as it provides 4 signal channels (2 on your forehead, and 1 behind each of your ears) and also accelerometer data. The supplied MuseIO driver streams data via OSC. For each channel you get raw signal data, 6 frequency bands and also FFT spectrum data. In addtion it reports blink and jaw_clench events. The 50/60Hz filter can be set within the driver. As it is the most powerful, it also seems to be the most sensitive. You are advised to sit up straight and don't move around, while doing measurements. It really can take a long time to calibrate, but at least you catch a climpse of all the software processes that are necessary to receive reliable data. 
+
+**Emotiv Insight** provides 5 signal channels (2 on forehead, 1 behind each ear, and one on the back of head). 
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/bci_compare.png"/>

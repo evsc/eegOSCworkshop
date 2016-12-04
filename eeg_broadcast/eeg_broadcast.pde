@@ -9,7 +9,7 @@
  */
  
 import processing.serial.*;
-import src.zeo.library.*;
+//import src.zeo.library.*;
 import oscP5.*;
 import netP5.*;
 
@@ -18,7 +18,7 @@ NetAddressList myNetAddressList = new NetAddressList();
 int myListeningPort = 5001;
 int myBroadcastPort = 12000;
 
-boolean doZeo = true;
+boolean doZeo = false;
 boolean doMuse = true;
 boolean doThinkgear = true;
 boolean ready = false;
@@ -29,18 +29,20 @@ String myDisconnectPattern = "/eeg/disconnect";
 PFont myFont;
 
 // zeo
-ZeoStream zeo;    // stream object
-ZeoSlice slice;   // the current data
+//ZeoStream zeo;    // stream object
+//ZeoSlice slice;   // the current data
 
 // muse values
 int eeg_output_frequency_hz = 0;
 int notch_frequency_hz = 0;
 int battery_percent_remaining = 0;
+int touching_forehead;
 int status_indicator[];
 int dropped_samples = 0;
 float museEEG[];
 String[] museEEGband = { "Delta (1-4)", "Theta (5-8)", "Alpha (9-13)", "Beta (13-30)", "Gamma (30-50)"};
-
+float muse_concentration = 0;
+float muse_mellow = 0;
 
 // thinkgear
 int tgAttention = 0;
@@ -51,7 +53,7 @@ String[] tgEEGband = { "Delta (0.5-2.75)", "Theta (3.5-6.75)", "Low Alpha (7.5-9
 
 
 void setup() {
-  size(900,550);
+  size(1000,550);
   oscP5 = new OscP5(this, myListeningPort);
   
   myFont = createFont("", 16);
@@ -72,10 +74,10 @@ void setup() {
     // print serial ports
     println(Serial.list());
     // select serial port for ZEO
-    zeo = new ZeoStream(this, Serial.list()[1] );
-    zeo.debug = false;
+//    zeo = new ZeoStream(this, Serial.list()[1] );
+//    zeo.debug = false;
     // start to read data from serial port
-    zeo.start();
+//    zeo.start();
   }
   
   ready = true;
@@ -86,33 +88,73 @@ void draw() {
   background(50);
   fill(255,0,0);
   text("MUSE", 10,30);
-  text("ThinkGear", 300,30);
-  text("ZEO", 600,30);
+  text("ThinkGear", 680,30);
+//  text("ZEO", 830,30);
   
   fill(255);
   
   // MUSE
+  int posx3 = 10;
+  int posx1 = 310;
+  int posx2 = 540;
+  
+  int y = 40;
+  
   if (doMuse) {
-    text("eeg_output_frequency_hz", 10, 60);
-    text(eeg_output_frequency_hz, 210, 60);
-    text("battery_percent_remaining", 10,80);
-    text(battery_percent_remaining, 210,80);
-    text("notch_frequency_hz ", 10,100);
-    text(notch_frequency_hz, 210,100);
-    text("eeg: dropped_samples", 10,120);
-    text(dropped_samples, 210,120);
-    text("status_indicator ", 10, 140);
-    text(status_indicator[0] + " " + status_indicator[1] + " " + status_indicator[2] + " " + status_indicator[3], 210, 140);
+    fill(200);
+    text("/muse/config", posx3, y+=20);
+    text("/muse/config", posx3, y+=20);
+    text("/muse/config", posx3, y+=20);
+    text("/muse/eeg/dropped_samples", posx3, y+=20);
+    text("/muse/elements/horseshoe", posx3, y+=20);
+    text("/muse/elements/touching_forehead", posx3, y+=20);
+    
+    text("/muse/elements/delta_absolute", posx3, y+=20);
+    text("/muse/elements/theta_absolute", posx3, y+=20);
+    text("/muse/elements/alpha_absolute", posx3, y+=20);
+    text("/muse/elements/beta_absolute", posx3, y+=20);
+    text("/muse/elements/gamma_absolute", posx3, y+=20);
+    
+    fill(100);
+    text("/muse/elements/experimental/concentration", posx3, y+=20);
+    text("/muse/elements/experimental/mellow", posx3, y+=20);
+    
+    fill(255);
+    
+    y = 40;
+    text("eeg_output_frequency_hz", posx1, y+=20);
+    text(eeg_output_frequency_hz, posx2, y);
+    
+    text("battery_percent_remaining", posx1,y+=20);
+    text(battery_percent_remaining, posx2,y);
+    
+    text("notch_frequency_hz ", posx1,y+=20);
+    text(notch_frequency_hz, posx2,y);
+    
+    text("eeg: dropped_samples", posx1,y+=20);
+    text(dropped_samples, posx2,y);
+    
+    text("status_indicator ", posx1, y+=20);
+    text(status_indicator[0] + " " + status_indicator[1] + " " + status_indicator[2] + " " + status_indicator[3], posx2, y);
 
+    text("touching_forehead ", posx1, y+=20);
+    text(touching_forehead, posx2, y);
+    y+=20;
     for(int i=0; i<5; i++) {
-      text(museEEGband[i], 10, 160+i*20);
-      text(museEEG[i], 10+200, 160+i*20);
+      text(museEEGband[i], posx1, y+i*20);
+      text(museEEG[i], posx2-5, y+i*20);
     }
+    
+    fill(150);
+    text("CONCENTRATION ", posx1, y+=100);
+    text(muse_concentration, posx2-5, y);
+    text("MELLOW ", posx1, y+=20);
+    text(muse_mellow, posx2-5, y);
   }
   
   // thinkgear
   if (doThinkgear) {
-    int x1 = 300;
+    int x1 = 680;
     int x2 = x1+200;
     text("poorSignal", x1, 60);
     text(tgPoorSignal, x2, 60);
@@ -130,12 +172,12 @@ void draw() {
   
   // zeo
   if (doZeo) {
-    for(int i=0; i<7; i++) {
-      text(zeo.nameFrequencyBin(i), 600, 60+i*20);
-      text(nf(zeo.slice.frequencyBin[i],0,3), 740, 60+i*20);
-    }
-    text("sleepState", 600, 60+7*20);
-    text(zeo.slice.sleepState, 740, 60+7*20);
+//    for(int i=0; i<7; i++) {
+//      text(zeo.nameFrequencyBin(i), 600, 60+i*20);
+//      text(nf(zeo.slice.frequencyBin[i],0,3), 740, 60+i*20);
+//    }
+//    text("sleepState", 600, 60+7*20);
+//    text(zeo.slice.sleepState, 740, 60+7*20);
   }
 
   fill(255,0,0);
@@ -147,22 +189,22 @@ void draw() {
 }
 
 
-public void zeoSliceEvent(ZeoStream z) {
-  slice = z.slice;
-
-  OscMessage myOscMessage = new OscMessage("/zeo/slice");
-  for(int i=0; i<7; i++) {
-    myOscMessage.add(slice.frequencyBin[i]);
-  }
-  oscP5.send(myOscMessage, myNetAddressList);
-}
-
-public void zeoSleepStateEvent(ZeoStream z) {
-  // println("zeoSleepStateEvent "+z.sleepState);  
-  OscMessage myOscMessage = new OscMessage("/zeo/state");
-  myOscMessage.add(z.sleepState);
-  oscP5.send(myOscMessage, myNetAddressList);
-}
+//public void zeoSliceEvent(ZeoStream z) {
+//  slice = z.slice;
+//
+//  OscMessage myOscMessage = new OscMessage("/zeo/slice");
+//  for(int i=0; i<7; i++) {
+//    myOscMessage.add(slice.frequencyBin[i]);
+//  }
+//  oscP5.send(myOscMessage, myNetAddressList);
+//}
+//
+//public void zeoSleepStateEvent(ZeoStream z) {
+//  // println("zeoSleepStateEvent "+z.sleepState);  
+//  OscMessage myOscMessage = new OscMessage("/zeo/state");
+//  myOscMessage.add(z.sleepState);
+//  oscP5.send(myOscMessage, myNetAddressList);
+//}
  
 void oscEvent(OscMessage theOscMessage) {
 //  println("broadcaster: oscEvent");
@@ -186,6 +228,7 @@ void oscEvent(OscMessage theOscMessage) {
       notch_frequency_hz = jo.getInt("notch_frequency_hz");
       battery_percent_remaining = jo.getInt("battery_percent_remaining");
       // println(theOscMessage.addrPattern() + ": " + config_json);
+      oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/annotation")) {
       println(theOscMessage.addrPattern());
@@ -193,6 +236,11 @@ void oscEvent(OscMessage theOscMessage) {
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/horseshoe")) {
       for (int i=0; i<4; i++) status_indicator[i] = int(theOscMessage.get(i).floatValue());
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    // touching_forehead
+    else if (theOscMessage.addrPattern().equals("/muse/elements/touching_forehead")) {
+      touching_forehead = theOscMessage.get(0).intValue();
       oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/eeg/dropped_samples")) {
@@ -227,13 +275,35 @@ void oscEvent(OscMessage theOscMessage) {
       museEEG[4] = (theOscMessage.get(0).floatValue());
       oscP5.send(theOscMessage, myNetAddressList);
     }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/delta_relative")) {
+      museEEG[0] = (theOscMessage.get(0).floatValue());
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/theta_relative")) {
+      museEEG[1] = (theOscMessage.get(0).floatValue());
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/alpha_relative")) {
+      museEEG[2] = (theOscMessage.get(0).floatValue());
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/beta_relative")) {
+      museEEG[3] = (theOscMessage.get(0).floatValue());
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/gamma_relative")) {
+      museEEG[4] = (theOscMessage.get(0).floatValue());
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
     else if (theOscMessage.addrPattern().equals("/muse/elements/blink")) {
       oscP5.send(theOscMessage, myNetAddressList);
       int blinkVal = theOscMessage.get(0).intValue();
-      // println("muse blink "+blinkVal);
+      if (blinkVal == 1) println("muse blink "+blinkVal);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/jaw_clench")) {
       oscP5.send(theOscMessage, myNetAddressList);
+      int jawVal = theOscMessage.get(0).intValue();
+      if (jawVal == 1) println("jaw clench");
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft0")) {
       oscP5.send(theOscMessage, myNetAddressList);
@@ -245,6 +315,14 @@ void oscEvent(OscMessage theOscMessage) {
       oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft3")) {
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/experimental/concentration")) {
+      muse_concentration = (theOscMessage.get(0).floatValue());
+      oscP5.send(theOscMessage, myNetAddressList);
+    }
+    else if (theOscMessage.addrPattern().equals("/muse/elements/experimental/mellow")) {
+      muse_mellow = (theOscMessage.get(0).floatValue());
       oscP5.send(theOscMessage, myNetAddressList);
     }
     
