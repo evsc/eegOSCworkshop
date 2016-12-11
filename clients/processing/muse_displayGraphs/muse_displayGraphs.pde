@@ -19,10 +19,12 @@ int listeningPort = 12000;
 PFont bigFont;
 PFont smFont;
 
-color[] binColor = { color(50,50,50), color(40,40,200), color(150,0,200), color(0,250,150), color(250,150,0)};
+color[] binColor = { color(0,0,50), color(40,40,250), color(180,0,230), color(0,250,150), color(255,50,0)};
 color statusColor = color(255,0,0);
 color concentrationColor = color(250, 50, 130);
 color mellowColor = color(50,200,50);
+color mainColor = color(255);
+color bgColor = color(50);
 boolean displayData = false;
 int maxmemory = 2001;  // keep
 int ram = 2000;        // display
@@ -47,9 +49,10 @@ float muse_concentration = 0;
 float muse_mellow = 0;
 
 
-int display = 1;
+int display = 4;
 boolean pause = false;
 boolean block = false;
+
 
 
 class Sample {
@@ -96,81 +99,95 @@ void setup() {
 
 void draw() {
   if (!pause) {
-  background(255);
-  noStroke();
-  textAlign(LEFT, TOP);
-  
-  textFont(bigFont);
-  fill(255,0,0);
-  
-  text("MUSE", 50,50);
-  textFont(smFont);
-  text("interpolate", 200, 55);
-  text("ram", 200, 70);
-  if(block) text("blocked input", 400, 62);
-  textAlign(RIGHT, TOP);
-  text(interpolate, 320, 55);
-  text(ram, 320, 70);
-  textAlign(LEFT, TOP);
-  
-  
-  fill(0,0,0);
-  
-  int x1 = 50;
-  int x2 = x1+250;
-  int y1 = 100;
-  
-  // muse
-  // display all incoming data
-  if (displayData) {
-    text("battery", x1, y1+=20);
-    text(museBattery + " %", x2, y1);
-    y1+=20;
-    text("status_indicator", x1, y1+=20);
-    text(museStatus[0] + " " + museStatus[1] + " " + museStatus[2] + " " + museStatus[3], x2, y1);
-    text("blink", x1, y1+=20);
-    text(museBlink, x2, y1);
-    text("jaw_clench", x1, y1+=20);
-    text(museJaw, x2, y1);
-    for(int i=0; i<4; i++) {
-      text(museSensors[i], x1, y1+=40);
-      for (int j=0; j<5; j++) {
-        text(museEEGwave[j] + " ("+museEEGhz[j]+")", x1+20, y1+=20);
-        text(museEEGabsolute[i][j], x2, y1);
-        text("relative: "+nf(museEEGrelative[i][j],0,4), x2+100, y1);
+    background(bgColor);
+    noStroke();
+    textAlign(LEFT, TOP);
+    
+    textFont(bigFont);
+    fill(255,0,0);
+    
+    text("MUSE", 50,50);
+    textFont(smFont);
+    text("interpolate", 200, 55);
+    text("ram", 200, 70);
+    if(block) text("blocked input", 400, 62);
+    textAlign(RIGHT, TOP);
+    text(interpolate, 320, 55);
+    text(ram, 320, 70);
+    textAlign(LEFT, TOP);
+    
+    
+    fill(mainColor);
+    
+    int x1 = 50;
+    int x2 = x1+250;
+    int y1 = 100;
+    
+    // muse
+    // display all incoming data
+    if (displayData) {
+      text("battery", x1, y1+=20);
+      text(museBattery + " %", x2, y1);
+      y1+=20;
+      text("status_indicator", x1, y1+=20);
+      text(museStatus[0] + " " + museStatus[1] + " " + museStatus[2] + " " + museStatus[3], x2, y1);
+      text("blink", x1, y1+=20);
+      text(museBlink, x2, y1);
+      text("jaw_clench", x1, y1+=20);
+      text(museJaw, x2, y1);
+      for(int i=0; i<4; i++) {
+        text(museSensors[i], x1, y1+=40);
+        for (int j=0; j<5; j++) {
+          text(museEEGwave[j] + " ("+museEEGhz[j]+")", x1+20, y1+=20);
+          text(museEEGabsolute[i][j], x2, y1);
+          text("relative: "+nf(museEEGrelative[i][j],0,4), x2+100, y1);
+        }
       }
     }
-  }
+    
+    if(display == 1) {
+      for (int i=0; i<4; i++) {
+        drawBin(50+280*i,100, 260, 260, i);
+      }
+      drawBin(50,400, 350, 350, 4);
+      drawBin(425,400, 350, 350, 5);
+      drawBin(800,400, 350, 350, -1);
+      
+    } else if(display == 2) {
+       
+      for (int i=0; i<4; i++) {
+        drawTimeSeries(50,100+140*i, 1100,120, i, true);
+      }
   
-  if(display == 1) {
-    for (int i=0; i<4; i++) {
-      drawBin(50+280*i,100, 260, 260, i);
+      drawExpGraph(50,700, 1100, 100);
+      
+      drawTimeSeriesStatus(50,640, 1100, 30);
+      drawTimeSeriesTime(50,670, 1100, 30);
+      
+    } else if(display == 3) {
+      
+      drawTimeSeries(50,100, 1100,200, 4, true);
+      drawTimeSeries(50,320, 1100,200, 5, true);
+      drawTimeSeries(50,540, 1100,200, -1, true);
+      
+      drawTimeSeriesStatus(50,740, 1100, 30);
+      drawTimeSeriesTime(50,770, 1100, 30);
+      
+    } else if (display == 4) {
+      
+      drawTimeSeries(50,200, 1100,500, 5, true);
+      
+      drawTimeSeriesStatus(50,740, 1100, 30);
+      drawTimeSeriesTime(50,770, 1100, 30);
+      
+      for(int b=0; b<5; b++) {
+        fill(binColor[b]);
+        text(museEEGwave[b] + " " + museEEGhz[b] + " Hz", 700, 50+20*b);  
+      }
+      
+      drawRamBin(800,50, 350, 130, 5);
+      
     }
-    drawBin(50,400, 350, 350, 4);
-    drawBin(425,400, 350, 350, 5);
-    drawBin(800,400, 350, 350, -1);
-    
-  } else if(display == 2) {
-     
-    for (int i=0; i<4; i++) {
-      drawTimeSeries(50,100+140*i, 1100,120, i);
-    }
-
-    drawExpGraph(50,700, 1100, 100);
-    
-    drawTimeSeriesStatus(50,640, 1100, 30);
-    drawTimeSeriesTime(50,670, 1100, 30);
-    
-  } else if(display == 3) {
-    
-    drawTimeSeries(50,100, 1100,200, 4);
-    drawTimeSeries(50,320, 1100,200, 5);
-    drawTimeSeries(50,540, 1100,200, -1);
-    
-    drawTimeSeriesStatus(50,740, 1100, 30);
-    drawTimeSeriesTime(50,770, 1100, 30);
-    
-  }
   }
 
 }
@@ -192,7 +209,7 @@ void drawBin(int x, int y, int w, int h, int displaysensor) {
   drawFrame(w,h);
 
   // draw legend
-  fill(0); noStroke();
+  fill(mainColor); noStroke();
   textFont(smFont);
   textAlign(CENTER, TOP);
   textLeading(25);
@@ -243,7 +260,91 @@ void drawBin(int x, int y, int w, int h, int displaysensor) {
 }
 
 
-void drawTimeSeries(int x, int y, int w, int h, int displaysensor) {
+
+
+void drawRamBin(int x, int y, int w, int h, int displaysensor) {
+  
+  int toplegend = 30;
+  int legend = 0;
+  int graphh = h - legend - toplegend;
+  int graphw = w;
+  int gap = 10;
+  
+  float scaleX = graphw / 5.0f;  // 5 frequency bins
+  float scaleY = graphh / 1.0;  // scale height of frequency bins
+  
+  pushMatrix();
+  translate(x, y);
+  drawFrame(w,h);
+
+  // draw legend
+  fill(mainColor); noStroke();
+  textFont(smFont);
+  textAlign(CENTER, TOP);
+  textLeading(25);
+//  for(int i=0; i<5; i++) text(museEEGwave[i], (i+0.0)*scaleX, toplegend+graphh, scaleX, 30);
+//  for(int i=0; i<5; i++) text(museEEGhz[i], (i+0.0)*scaleX, toplegend+graphh+25, scaleX, 30);
+  
+  textFont(bigFont);
+  textAlign(CENTER, TOP);
+  if(displaysensor==-1) text("Average Bins", w/2,0);
+  else text(museSensors[displaysensor], w/2,0);
+
+  int m = min(ram, samples.size());
+  
+  for(int i=0; i<5; i++) {
+    
+    float avg_abs = 0;
+    float avg_rel = 0;
+    int cnts = 0;
+  
+    for(h=0; h<m; h++) {
+      Sample sample = (Sample) samples.get(samples.size()-h-1);
+  
+      
+      
+      if(displaysensor==-1 || displaysensor>3) {
+        for (int s=0; s<4; s++) {
+          if(!Float.isNaN(sample.relative[s][i])) {
+            if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
+              cnts++;
+              avg_abs += sample.absolute[s][i]; 
+              avg_rel += sample.relative[s][i]; 
+            }
+          }
+          
+        }
+      } else {
+        if(!Float.isNaN(sample.relative[displaysensor][i])) {
+          cnts++;
+          avg_abs += sample.relative[displaysensor][i]; 
+          avg_rel += sample.relative[displaysensor][i]; 
+        }
+      }
+
+    }
+    
+    avg_abs/=cnts;
+    avg_rel/=cnts;
+    fill(binColor[i],50);
+    rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_abs*scaleY*-1);
+    fill(binColor[i]);
+    rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_rel*scaleY*-1);
+  
+  }
+
+  
+  popMatrix();
+
+  
+}
+
+
+
+
+
+
+void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean filled) {
   
   pushMatrix();
   translate(x, y);
@@ -254,26 +355,26 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor) {
   int graphw = w-legend;
   
   float scaleX = graphw / (float) (ram-1);  // 
-  float scaleY = graphh / 0.6f;  // 
+  float scaleY = graphh / 0.7f;  // 
   
   textFont(bigFont);
-  fill(0);
+  fill(mainColor);
   textAlign(LEFT, TOP);
   if(displaysensor==-1) text("All sensors", legend+10,10);
   else text(museSensors[displaysensor], legend+10, 10);
 
+  // draw legend
   textFont(smFont);
   textAlign(RIGHT, CENTER);
-  for(float i=0.1; i<0.6; i+=0.1) {
-    stroke(0); noFill();
+  for(float i=0.1; i<0.7; i+=0.1) {
+    stroke(mainColor); noFill();
     line(legend, graphh-i*scaleY, legend-5, graphh-i*scaleY);
-    fill(0); noStroke();
+    fill(mainColor); noStroke();
     text( nf(i,0,1), legend-20, graphh-i*scaleY );
     
   }
   
 
-  int keyframe;  // draw these frames, and inteprolate previous x
   ArrayList last10 = new ArrayList();
   
   noFill();
@@ -283,64 +384,124 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor) {
     float avg_abs = 0;
     float avg_rel = 0;
     int cnts = 0;
-    for(int b=0; b<5; b++) {
-      stroke(binColor[b]); 
-      beginShape();
-      strokeWeight(2.0);
-      keyframe = interpolate;
-      last10.clear();
-      for(int i=0; i<m; i++) {
-        Sample sample = (Sample) samples.get(samples.size()-i-1);
-        last10.add(sample);
-        if(last10.size() > interpolate) last10.remove(0);
-          
-//        if (last10.size() >= interpolate) {
-          cnts = 0;
-          if (displaysensor==-1 || displaysensor>3) {
-            for (int s=0; s<4; s++) {
-              if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
-                if(!Float.isNaN(sample.relative[s][b])) {
-                  avg_rel += sample.relative[s][b];
-                  cnts++;
-                }
-              }
-            }
-          } else {
-            if(!Float.isNaN(sample.relative[displaysensor][b])) {
-                avg_rel += sample.relative[displaysensor][b];
-                cnts++;
-              }
-          }
-          for (int c=1; c<interpolate; c++) {
-            if(last10.size()-1-c > 0) {
-              Sample f = (Sample) last10.get(last10.size()-1-c);
-              if (displaysensor==-1 || displaysensor>3) {
-                for (int s=0; s<4; s++) {
-                  if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
-                    if(!Float.isNaN(f.relative[s][b])) {
-                      avg_rel += f.relative[s][b];
-                      cnts++;
-                    }
+    int i = 0;
+    
+    boolean showStroke = true;
+    
+    
+    if(filled) {
+      
+      for(int b=0; b<5; b++) {
+        fill(binColor[b],150); 
+        if(b==4) fill(binColor[b],220);
+        beginShape();
+        vertex(w, graphh);
+        last10.clear();
+        for(i=0; i<m; i++) {
+          Sample sample = (Sample) samples.get(samples.size()-i-1);
+          last10.add(sample);
+          if(last10.size() > interpolate) last10.remove(0);
+            
+            cnts = 0;
+            if (displaysensor==-1 || displaysensor>3) {
+              for (int s=0; s<4; s++) {
+                if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
+                  if(!Float.isNaN(sample.relative[s][b])) {
+                    avg_rel += sample.relative[s][b];
+                    cnts++;
                   }
                 }
-              } else {
-                if(!Float.isNaN(f.relative[displaysensor][b])) {
-                  avg_rel += f.relative[displaysensor][b];
+              }
+            } else {
+              if(!Float.isNaN(sample.relative[displaysensor][b])) {
+                  avg_rel += sample.relative[displaysensor][b];
                   cnts++;
                 }
-              }
             }
-          }  
-          avg_rel/=cnts;
-          //vertex(w-(i-interpolate/2)*scaleX, graphh-avg_rel*scaleY);
-          vertex(w-(i)*scaleX, graphh-avg_rel*scaleY);
-          avg_rel = 0;
-//        }
-        
-
-        
+            for (int c=1; c<interpolate; c++) {
+              if(last10.size()-1-c > 0) {
+                Sample f = (Sample) last10.get(last10.size()-1-c);
+                if (displaysensor==-1 || displaysensor>3) {
+                  for (int s=0; s<4; s++) {
+                    if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
+                      if(!Float.isNaN(f.relative[s][b])) {
+                        avg_rel += f.relative[s][b];
+                        cnts++;
+                      }
+                    }
+                  }
+                } else {
+                  if(!Float.isNaN(f.relative[displaysensor][b])) {
+                    avg_rel += f.relative[displaysensor][b];
+                    cnts++;
+                  }
+                }
+              }
+            }  
+            avg_rel/=cnts;
+            vertex(w-(i)*scaleX, graphh-avg_rel*scaleY);
+            avg_rel = 0;
+          
+        }
+        vertex(w-(i-1)*scaleX, graphh);
+        endShape();
       }
-      endShape();
+      
+    } else {
+      noFill();
+      for(int b=0; b<5; b++) {
+        stroke(binColor[b]); 
+        beginShape();
+        strokeWeight(2.0);
+        last10.clear();
+        for(i=0; i<m; i++) {
+          Sample sample = (Sample) samples.get(samples.size()-i-1);
+          last10.add(sample);
+          if(last10.size() > interpolate) last10.remove(0);
+            
+            cnts = 0;
+            if (displaysensor==-1 || displaysensor>3) {
+              for (int s=0; s<4; s++) {
+                if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
+                  if(!Float.isNaN(sample.relative[s][b])) {
+                    avg_rel += sample.relative[s][b];
+                    cnts++;
+                  }
+                }
+              }
+            } else {
+              if(!Float.isNaN(sample.relative[displaysensor][b])) {
+                  avg_rel += sample.relative[displaysensor][b];
+                  cnts++;
+                }
+            }
+            for (int c=1; c<interpolate; c++) {
+              if(last10.size()-1-c > 0) {
+                Sample f = (Sample) last10.get(last10.size()-1-c);
+                if (displaysensor==-1 || displaysensor>3) {
+                  for (int s=0; s<4; s++) {
+                    if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
+                      if(!Float.isNaN(f.relative[s][b])) {
+                        avg_rel += f.relative[s][b];
+                        cnts++;
+                      }
+                    }
+                  }
+                } else {
+                  if(!Float.isNaN(f.relative[displaysensor][b])) {
+                    avg_rel += f.relative[displaysensor][b];
+                    cnts++;
+                  }
+                }
+              }
+            }  
+            avg_rel/=cnts;
+            vertex(w-(i)*scaleX, graphh-avg_rel*scaleY);
+            avg_rel = 0;
+          
+        }
+        endShape();
+      }
     }
 
     
@@ -361,7 +522,7 @@ void drawTimeSeriesTime(int x, int y, int w, int h) {
   int graphw = w - legend;
   float scaleX = graphw / (float) (ram-1);  //
   
-  fill(0);
+  fill(mainColor);
   textFont(smFont);
   
   
@@ -441,9 +602,9 @@ void drawExpGraph(int x, int y, int w, int h) {
   textFont(smFont);
   textAlign(RIGHT, CENTER);
   for(float i=0.25; i<1; i+=0.25) {
-    stroke(0); noFill();
+    stroke(mainColor); noFill();
     line(legend, toplegend+graphh-i*scaleY, legend-5, toplegend+graphh-i*scaleY);
-    fill(0); noStroke();
+    fill(mainColor); noStroke();
     text( nf(i,0,2), legend-20, toplegend+graphh-i*scaleY );
     
   }
@@ -681,7 +842,7 @@ void keyPressed() {
       break;
     case('d'):
       display++;
-      if(display >3) display = 1;
+      if(display >4) display = 1;
       break;
     case(' '):
       pause = !pause;
