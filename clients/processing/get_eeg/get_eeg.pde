@@ -7,7 +7,7 @@ import netP5.*;
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
 
-String broadcastIP = "192.168.1.5";
+String broadcastIP = "192.168.0.101";
 int broadcastPort = 5001;
 int listeningPort = 12000;
 
@@ -180,23 +180,23 @@ void oscEvent(OscMessage theOscMessage) {
     String config_json = theOscMessage.get(0).stringValue();
     JSONObject jo = JSONObject.parse(config_json);
     museBattery = jo.getInt("battery_percent_remaining");
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/delta_absolute")) {
+  } else if (theOscMessage.addrPattern().equals("/muse/elements/delta_relative")) {
     for(int i=0; i<4; i++) {
       museEEG[i][0] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/theta_absolute")) {
+  } else if (theOscMessage.addrPattern().equals("/muse/elements/theta_relative")) {
     for(int i=0; i<4; i++) {
       museEEG[i][1] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/alpha_absolute")) {
+  } else if (theOscMessage.addrPattern().equals("/muse/elements/alpha_relative")) {
     for(int i=0; i<4; i++) {
       museEEG[i][2] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/beta_absolute")) {
+  } else if (theOscMessage.addrPattern().equals("/muse/elements/beta_relative")) {
     for(int i=0; i<4; i++) {
       museEEG[i][3] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/gamma_absolute")) {
+  } else if (theOscMessage.addrPattern().equals("/muse/elements/gamma_relative")) {
     for(int i=0; i<4; i++) {
       museEEG[i][4] = theOscMessage.get(i).floatValue();
     }

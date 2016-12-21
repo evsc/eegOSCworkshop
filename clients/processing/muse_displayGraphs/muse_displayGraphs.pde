@@ -1,6 +1,6 @@
 //
 // MUSE displayGraphs
-// receive data from zeo_broadcast
+// receive data from eeg_broadcast
 
 
 import oscP5.*;
@@ -12,28 +12,39 @@ OscP5 oscP5;
 port number of a remote location in the network. */
 NetAddress myBroadcastLocation; 
 
-String broadcastIP = "192.168.1.6";
+String broadcastIP = "192.168.0.101";
 int broadcastPort = 5001;
 int listeningPort = 12000;
 
 PFont bigFont;
 PFont smFont;
 
+
+// COLORS
 color[] binColor = { color(0,0,50), color(40,40,250), color(180,0,230), color(0,250,150), color(255,50,0)};
 color statusColor = color(255,0,0);
 color concentrationColor = color(250, 50, 130);
 color mellowColor = color(50,200,50);
 color mainColor = color(255);
 color bgColor = color(50);
+
+
 boolean displayData = false;
+
+// MEMORY
 int maxmemory = 2001;  // keep
-int ram = 2000;        // display
-int ramP = 4;
+int ram = 1500;        // display
+int ramP = 3;
 int[] ramSteps = { 100, 500, 1000, 1500, 2000 };
 ArrayList samples; 
+
+// INTERPOLATION
 int[] interpolateSteps = { 1, 10, 50, 100, 200, 400 };
-int interpol = 0;
-int interpolate = 1;  // in the time graph, how many samples to average across
+int interpol = 4;
+int interpolate = 200;  // in the time graph, how many samples to average across
+
+
+
 
 // muse
 int museBattery = 0;
@@ -177,15 +188,18 @@ void draw() {
       
       drawTimeSeries(50,200, 1100,500, 5, true);
       
-      drawTimeSeriesStatus(50,740, 1100, 30);
-      drawTimeSeriesTime(50,770, 1100, 30);
+      drawTimeSeriesStatus(50,700, 1100, 30);
+      drawTimeSeriesTime(50,730, 1100, 30);
+      drawExpGraph(50,750, 1100, 70);
       
       for(int b=0; b<5; b++) {
         fill(binColor[b]);
-        text(museEEGwave[b] + " " + museEEGhz[b] + " Hz", 700, 50+20*b);  
+        text(museEEGwave[b] + " " + museEEGhz[b] + " Hz", 500, 50+20*b);  
       }
       
       drawRamBin(800,50, 350, 130, 5);
+      
+      
       
     }
   }
@@ -290,7 +304,9 @@ void drawRamBin(int x, int y, int w, int h, int displaysensor) {
   if(displaysensor==-1) text("Average Bins", w/2,0);
   else text(museSensors[displaysensor], w/2,0);
 
+  
   int m = min(ram, samples.size());
+  
   
   for(int i=0; i<5; i++) {
     
@@ -298,30 +314,34 @@ void drawRamBin(int x, int y, int w, int h, int displaysensor) {
     float avg_rel = 0;
     int cnts = 0;
   
-    for(h=0; h<m; h++) {
-      Sample sample = (Sample) samples.get(samples.size()-h-1);
-  
-      
-      
-      if(displaysensor==-1 || displaysensor>3) {
-        for (int s=0; s<4; s++) {
-          if(!Float.isNaN(sample.relative[s][i])) {
-            if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
-              cnts++;
-              avg_abs += sample.absolute[s][i]; 
-              avg_rel += sample.relative[s][i]; 
+    // but let's exclude the last ~5 seconds = ~50 samples
+    // buffer time to get to the computer
+    if (m > 50) {
+      for(h=50; h<m; h++) {
+        Sample sample = (Sample) samples.get(samples.size()-h-1);
+    
+        
+        
+        if(displaysensor==-1 || displaysensor>3) {
+          for (int s=0; s<4; s++) {
+            if(!Float.isNaN(sample.relative[s][i])) {
+              if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
+                cnts++;
+                avg_abs += sample.absolute[s][i]; 
+                avg_rel += sample.relative[s][i]; 
+              }
             }
+            
           }
-          
+        } else {
+          if(!Float.isNaN(sample.relative[displaysensor][i])) {
+            cnts++;
+            avg_abs += sample.relative[displaysensor][i]; 
+            avg_rel += sample.relative[displaysensor][i]; 
+          }
         }
-      } else {
-        if(!Float.isNaN(sample.relative[displaysensor][i])) {
-          cnts++;
-          avg_abs += sample.relative[displaysensor][i]; 
-          avg_rel += sample.relative[displaysensor][i]; 
-        }
+  
       }
-
     }
     
     avg_abs/=cnts;
@@ -330,6 +350,13 @@ void drawRamBin(int x, int y, int w, int h, int displaysensor) {
     rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_abs*scaleY*-1);
     fill(binColor[i]);
     rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_rel*scaleY*-1);
+    
+    
+    textFont(smFont);
+    textAlign(CENTER, TOP);
+    fill(mainColor);
+    textLeading(25);
+    text(nf(avg_rel,0,2), (i+0.0)*scaleX, toplegend+graphh, scaleX, 30);
   
   }
 
@@ -386,9 +413,7 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
     int cnts = 0;
     int i = 0;
     
-    boolean showStroke = true;
-    
-    
+
     if(filled) {
       
       for(int b=0; b<5; b++) {
