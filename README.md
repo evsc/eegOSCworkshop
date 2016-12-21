@@ -18,7 +18,7 @@ The **Myndplay BrainbandXL** is build around a [NeuroSky ThinkGear chip](http://
 
 **Muse** is the more advanced than the previous two, as it provides 4 signal channels (2 on your forehead, and 1 behind each of your ears) and also accelerometer data. The supplied MuseIO driver streams data via OSC. For each channel you get raw signal data, 6 frequency bands and also FFT spectrum data. In addtion it reports blink and jaw_clench events. The 50/60Hz filter can be set within the driver. As it is the most powerful, it also seems to be the most sensitive. You are advised to sit up straight and don't move around, while doing measurements. It really can take a long time to calibrate, but at least you catch a climpse of all the software processes that are necessary to receive reliable data. 
 
-**Emotiv Insight** provides 5 signal channels (2 on forehead, 1 behind each ear, and one on the back of head). 
+**Emotiv Insight** provides 5 signal channels (2 on forehead, 1 behind each ear, and one on the back of head). Of all the headbands this one can get the most uncomfortable to wear, as you have to place multiple quite rigid sensors probes across your skull. It's often also hard to achieve good signal quality, they recommend to apply a saline solution to the electrodes for better conductivity. I haven't succeeded in getting the API to run on Ubuntu, therefore this repository doesn't contain any software for the Insight. Yet Emotiv has 2 quite good apps in the app store for interfacing with the headset.
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/evsc/eegOSCworkshop/master/presentation/img/bci_compare.png"/>
@@ -108,12 +108,19 @@ The Muse headband has 4 sensors, the values are communicated in the order: (1) l
 # status indicator for sensors, 1=good, 2=ok, >=3=bad
 /muse/elements/horseshoe ffff
 
-# frequency bands
+# frequency bands - absolute values 
 /muse/elements/delta_absolute dddd 	# 1-4Hz
 /muse/elements/theta_absolute dddd  # 5-8Hz
 /muse/elements/alpha_absolute dddd  # 9-13Hz
 /muse/elements/beta_absolute dddd  # 13-30Hz
 /muse/elements/gamma_absolute dddd  # 30-50Hz
+
+# frequency bands - relative values (0-1.0)
+/muse/elements/delta_relative dddd 	# 1-4Hz
+/muse/elements/theta_relative dddd  # 5-8Hz
+/muse/elements/alpha_relative dddd  # 9-13Hz
+/muse/elements/beta_relative dddd  # 13-30Hz
+/muse/elements/gamma_relative dddd  # 30-50Hz
 
 # detection of muscle movement: blink, jaw_clench, 1=detected
 /muse/elements/blink i 
