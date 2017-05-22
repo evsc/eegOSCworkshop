@@ -12,7 +12,7 @@ OscP5 oscP5;
 port number of a remote location in the network. */
 NetAddress myBroadcastLocation; 
 
-String broadcastIP = "192.168.0.101";
+String broadcastIP = "127.0.0.1";
 int broadcastPort = 5001;
 int listeningPort = 12000;
 
@@ -53,14 +53,14 @@ float museEEGabsolute[][];
 float museEEGrelative[][];
 String[] museEEGwave = { "Delta", "Theta", "Alpha", "Beta", "Gamma"};
 String[] museEEGhz = { "1-4", "5-8", "9-13", "13-30", "30-50" };
-String[] museSensors = { "Left ear", "Left forehead", "Right forehead", "Right ear", "Average ear", "Average forehead" };
+String[] museSensors = { "Left ear", "Left forehead", "Right forehead", "Right ear", "Avg ear", "Avg forehead" };
 int museBlink = 0;
 int museJaw = 0;
 float muse_concentration = 0;
 float muse_mellow = 0;
 
 
-int display = 4;
+int display = 5;
 boolean pause = false;
 boolean block = false;
 
@@ -157,6 +157,10 @@ void draw() {
     }
     
     if(display == 1) {
+      
+      // REAL TIME BINS FOR ALL CHANNELS
+      // AND AVERAGE BINS 
+      
       for (int i=0; i<4; i++) {
         drawBin(50+280*i,100, 260, 260, i);
       }
@@ -165,9 +169,11 @@ void draw() {
       drawBin(800,400, 350, 350, -1);
       
     } else if(display == 2) {
+      
+      // REAL TIME TIME GRAPHS FOR ALL CHANNELS
        
       for (int i=0; i<4; i++) {
-        drawTimeSeries(50,100+140*i, 1100,120, i, true);
+        drawTimeSeries(50,100+140*i, 1100,120, i, true, true);
       }
   
       drawExpGraph(50,700, 1100, 100);
@@ -177,16 +183,21 @@ void draw() {
       
     } else if(display == 3) {
       
-      drawTimeSeries(50,100, 1100,200, 4, true);
-      drawTimeSeries(50,320, 1100,200, 5, true);
-      drawTimeSeries(50,540, 1100,200, -1, true);
+      // TIME GRAPHS AVERAGES
+      
+      drawTimeSeries(50,100, 1100,200, 4, true, true);
+      drawTimeSeries(50,320, 1100,200, 5, true, true);
+      drawTimeSeries(50,540, 1100,200, -1, true, true);
       
       drawTimeSeriesStatus(50,740, 1100, 30);
       drawTimeSeriesTime(50,770, 1100, 30);
       
     } else if (display == 4) {
       
-      drawTimeSeries(50,200, 1100,500, 5, true);
+      // BIG AVERGAE FOREHEAD TIME GRAPH
+      // AVG RAM BIN
+      
+      drawTimeSeries(50,200, 1100,500, 5, true, true);
       
       drawTimeSeriesStatus(50,700, 1100, 30);
       drawTimeSeriesTime(50,730, 1100, 30);
@@ -197,13 +208,33 @@ void draw() {
         text(museEEGwave[b] + " " + museEEGhz[b] + " Hz", 500, 50+20*b);  
       }
       
-      drawRamBin(800,50, 350, 130, 5);
+      drawRamBin(800,50, 350, 130, 5, true);
       
+      
+      
+    } else if (display == 5) {
+      
+      // FOREHEAD TIMEGRAPH, RELATIVE AND ABSOLUTE
+      
+      drawTimeSeries(50,220, 1100,270, 5, true, false);  // absolute
+      drawTimeSeries(50,520, 1100,200, 5, true, true);  // relative
+      drawRamBin(400,50, 350, 130, 5, false);
+      drawRamBin(800,50, 350, 130, 5, true);
+      
+      
+      for(int b=0; b<5; b++) {
+        fill(binColor[b]);
+        //text(museEEGwave[b] + " " + museEEGhz[b] + " Hz", 500, 50+20*b);  
+      }
+      
+      drawTimeSeriesStatus(50,700, 1100, 30);
+      drawTimeSeriesTime(50,730, 1100, 30);
+      drawExpGraph(50,750, 1100, 70);
       
       
     }
   }
-
+ 
 }
 
 
@@ -276,7 +307,7 @@ void drawBin(int x, int y, int w, int h, int displaysensor) {
 
 
 
-void drawRamBin(int x, int y, int w, int h, int displaysensor) {
+void drawRamBin(int x, int y, int w, int h, int displaysensor, boolean useRelative) {
   
   int toplegend = 30;
   int legend = 0;
@@ -301,8 +332,11 @@ void drawRamBin(int x, int y, int w, int h, int displaysensor) {
   
   textFont(bigFont);
   textAlign(CENTER, TOP);
-  if(displaysensor==-1) text("Average Bins", w/2,0);
-  else text(museSensors[displaysensor], w/2,0);
+  String title = "";
+  if (useRelative) title = "Relative ";
+  else title = "Absolute ";
+  if(displaysensor==-1) text(title +"Avg Bins", w/2,0);
+  else text(title +museSensors[displaysensor], w/2,0);
 
   
   int m = min(ram, samples.size());
@@ -346,17 +380,25 @@ void drawRamBin(int x, int y, int w, int h, int displaysensor) {
     
     avg_abs/=cnts;
     avg_rel/=cnts;
-    fill(binColor[i],50);
-    rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_abs*scaleY*-1);
-    fill(binColor[i]);
-    rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_rel*scaleY*-1);
-    
+    if (useRelative) {
+    //fill(binColor[i],50);
+    //rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_abs*scaleY*-1);
+      fill(binColor[i]);
+      rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_rel*scaleY*-1);
+    } else {
+      fill(binColor[i]);
+      rect(i*scaleX, toplegend+graphh, scaleX, (float) avg_abs*scaleY*-1);
+    }
     
     textFont(smFont);
     textAlign(CENTER, TOP);
     fill(mainColor);
     textLeading(25);
-    text(nf(avg_rel,0,2), (i+0.0)*scaleX, toplegend+graphh, scaleX, 30);
+    if (useRelative) {
+      text(nf(avg_rel,0,2), (i+0.0)*scaleX, toplegend+graphh, scaleX, 30);
+    } else {
+      text(nf(avg_abs,0,2), (i+0.0)*scaleX, toplegend+graphh, scaleX, 30);
+    }
   
   }
 
@@ -371,7 +413,7 @@ void drawRamBin(int x, int y, int w, int h, int displaysensor) {
 
 
 
-void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean filled) {
+void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean filled, boolean useRelative) {
   
   pushMatrix();
   translate(x, y);
@@ -383,17 +425,25 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
   
   float scaleX = graphw / (float) (ram-1);  // 
   float scaleY = graphh / 0.7f;  // 
+  if (!useRelative) scaleY *= 0.4;
   
   textFont(bigFont);
   fill(mainColor);
   textAlign(LEFT, TOP);
-  if(displaysensor==-1) text("All sensors", legend+10,10);
-  else text(museSensors[displaysensor], legend+10, 10);
+  String title = "";
+  if (useRelative) title+= "Relative ";
+  else title+= "Absolute ";
+  if(displaysensor==-1) text(title +"All sensors", legend+10,10);
+  else text(title +museSensors[displaysensor], legend+10, 10);
 
   // draw legend
   textFont(smFont);
   textAlign(RIGHT, CENTER);
-  for(float i=0.1; i<0.7; i+=0.1) {
+  float topLegend = 0.7;
+  if (!useRelative) topLegend = 1.8;
+  float addLegend = 0.1;
+  if (!useRelative) addLegend = 0.3;
+  for(float i=0.1; i<topLegend; i+=addLegend) {
     stroke(mainColor); noFill();
     line(legend, graphh-i*scaleY, legend-5, graphh-i*scaleY);
     fill(mainColor); noStroke();
@@ -433,15 +483,17 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
                 if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
                   if(!Float.isNaN(sample.relative[s][b])) {
                     avg_rel += sample.relative[s][b];
+                    avg_abs += sample.absolute[s][b];
                     cnts++;
                   }
                 }
               }
             } else {
               if(!Float.isNaN(sample.relative[displaysensor][b])) {
-                  avg_rel += sample.relative[displaysensor][b];
-                  cnts++;
-                }
+                avg_rel += sample.relative[displaysensor][b];
+                avg_abs += sample.absolute[displaysensor][b];
+                cnts++;
+              }
             }
             for (int c=1; c<interpolate; c++) {
               if(last10.size()-1-c > 0) {
@@ -451,6 +503,7 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
                     if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
                       if(!Float.isNaN(f.relative[s][b])) {
                         avg_rel += f.relative[s][b];
+                        avg_abs += f.absolute[s][b];
                         cnts++;
                       }
                     }
@@ -464,8 +517,14 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
               }
             }  
             avg_rel/=cnts;
-            vertex(w-(i)*scaleX, graphh-avg_rel*scaleY);
+            avg_abs/=cnts;
+            if (useRelative) {
+              vertex(w-(i)*scaleX, graphh-avg_rel*scaleY);
+            } else {
+              vertex(w-(i)*scaleX, graphh-avg_abs*scaleY);
+            }
             avg_rel = 0;
+            avg_abs = 0;
           
         }
         vertex(w-(i-1)*scaleX, graphh);
@@ -490,6 +549,7 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
                 if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
                   if(!Float.isNaN(sample.relative[s][b])) {
                     avg_rel += sample.relative[s][b];
+                    avg_abs += sample.absolute[s][b];
                     cnts++;
                   }
                 }
@@ -497,6 +557,7 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
             } else {
               if(!Float.isNaN(sample.relative[displaysensor][b])) {
                   avg_rel += sample.relative[displaysensor][b];
+                  avg_abs += sample.absolute[displaysensor][b];
                   cnts++;
                 }
             }
@@ -508,6 +569,7 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
                     if ((displaysensor != 4 || (s==0 || s==3)) && (displaysensor != 5 || (s==1 || s==2))) {
                       if(!Float.isNaN(f.relative[s][b])) {
                         avg_rel += f.relative[s][b];
+                        avg_abs += f.absolute[s][b];
                         cnts++;
                       }
                     }
@@ -515,14 +577,21 @@ void drawTimeSeries(int x, int y, int w, int h, int displaysensor, boolean fille
                 } else {
                   if(!Float.isNaN(f.relative[displaysensor][b])) {
                     avg_rel += f.relative[displaysensor][b];
+                    avg_abs += f.absolute[displaysensor][b];
                     cnts++;
                   }
                 }
               }
             }  
             avg_rel/=cnts;
-            vertex(w-(i)*scaleX, graphh-avg_rel*scaleY);
+            avg_abs/=cnts;
+            if (useRelative) {
+              vertex(w-(i)*scaleX, graphh-avg_rel*scaleY);
+            } else {
+              vertex(w-(i)*scaleX, graphh-avg_abs*scaleY);
+            }
             avg_rel = 0;
+            avg_abs = 0;
           
         }
         endShape();
@@ -867,7 +936,7 @@ void keyPressed() {
       break;
     case('d'):
       display++;
-      if(display >4) display = 1;
+      if(display >5) display = 1;
       break;
     case(' '):
       pause = !pause;
@@ -890,7 +959,3 @@ void keyPressed() {
       println("block now: "+block);
   }  
 }
-
-
-
-
