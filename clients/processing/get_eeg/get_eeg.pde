@@ -7,7 +7,7 @@ import netP5.*;
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
 
-String broadcastIP = "192.168.0.101";
+String broadcastIP = "192.168.0.100";
 int broadcastPort = 5001;
 int listeningPort = 12000;
 

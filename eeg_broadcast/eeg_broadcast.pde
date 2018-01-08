@@ -207,6 +207,8 @@ void draw() {
 //}
  
 void oscEvent(OscMessage theOscMessage) {
+  
+     //println(theOscMessage.addrPattern());
 //  println("broadcaster: oscEvent");
   if (ready) {
 
@@ -220,7 +222,7 @@ void oscEvent(OscMessage theOscMessage) {
 
   if(doMuse && theOscMessage.addrPattern().length()>4 && theOscMessage.addrPattern().substring(0,5).equals("/muse")) {
   
-//    println(theOscMessage.addrPattern());
+
     
     if (theOscMessage.addrPattern().equals("/muse/config")) {
       String config_json = theOscMessage.get(0).stringValue();
