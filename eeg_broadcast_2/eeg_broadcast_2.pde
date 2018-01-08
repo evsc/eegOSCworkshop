@@ -176,6 +176,9 @@ void draw() {
   text("OSC CLIENTS", 10, 330);
   fill(255);
   for(int i=0; i<myNetAddressList.size(); i++ ) {
+    //String[] ipnum = split(myNetAddressList.get(i).address(), '.');
+    //println(ipnum.length);
+    //text(ipnum[0]+"."+ipnum[1]+"."+ipnum[2]+"."+ipnum[3], 10, 350+i*20, 70, 40);
     text(myNetAddressList.get(i).address(), 10, 350+i*20, 70, 40);
   }
 }
