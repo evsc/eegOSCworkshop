@@ -610,7 +610,7 @@ void oscEvent(OscMessage theOscMessage) {
     muse = 1;
   }
   String addp = theOscMessage.addrPattern().substring(5);
-  //println("addp "+addp + " muse "+muse);
+  // println("addp "+addp + " muse "+muse);
   
   if (addp.equals("/elements/horseshoe")) {
       for (int i=0; i<4; i++) museStatus[muse][i] = int(theOscMessage.get(i).floatValue());
