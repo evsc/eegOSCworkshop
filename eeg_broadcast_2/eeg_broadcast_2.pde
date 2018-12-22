@@ -50,6 +50,12 @@ float muse2_EEG_rel[][];
 float muse2_concentration = 0;
 float muse2_mellow = 0;
 
+int count_oscEvents = 0;
+int count_seconds = 0;
+int oscbySecond = 0;
+long start_millis = 0;
+
+boolean blockMostOSC = false;
 
 void setup() {
   size(1000,550);
@@ -79,7 +85,7 @@ void setup() {
     }
   }
 
-  
+  start_millis = millis();
   ready = true;
   
 }
@@ -100,6 +106,13 @@ void draw() {
   
   text("MUSE 1", posx2,30);
   text("MUSE 2", posx4,30);
+  text(nfs(frameRate,0,2)+" FPS", posx3, height-40);
+  
+  count_seconds = int(millis() - start_millis)/1000; 
+  
+  if(count_seconds>0) oscbySecond = int(count_oscEvents/count_seconds);
+  text(oscbySecond + " OSC events / second", posx3, height-20);
+  if(blockMostOSC) text("blockMostOSC", 300, height-20);
   
   fill(255);
   
@@ -190,6 +203,8 @@ void oscEvent(OscMessage theOscMessage) {
      //println(theOscMessage.addrPattern());
 //  println("broadcaster: oscEvent");
   if (ready) {
+    
+    count_oscEvents++;
 
   /* check if the address pattern fits any of our patterns */
   if (theOscMessage.addrPattern().equals(myConnectPattern)) {
@@ -323,7 +338,7 @@ void oscEvent(OscMessage theOscMessage) {
       muse1_notch_frequency_hz = jo.getInt("notch_frequency_hz");
       muse1_battery_percent_remaining = jo.getInt("battery_percent_remaining");
       // println(theOscMessage.addrPattern() + ": " + config_json);
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/annotation")) {
       println(theOscMessage.addrPattern());
@@ -331,37 +346,37 @@ void oscEvent(OscMessage theOscMessage) {
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/horseshoe")) {
       for (int i=0; i<4; i++) muse1_status_indicator[i] = int(theOscMessage.get(i).floatValue());
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
 
     }
     // touching_forehead
     else if (theOscMessage.addrPattern().equals("/muse/elements/touching_forehead")) {
       muse1_touching_forehead = theOscMessage.get(0).intValue();
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/eeg/dropped_samples")) {
       muse1_dropped_samples = theOscMessage.get(0).intValue();
     }
     else if (theOscMessage.addrPattern().equals("/muse/eeg")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }  
     else if (theOscMessage.addrPattern().equals("/muse/eeg/quantization")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/acc")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/delta_absolute")) {
       for(int i=0; i<4; i++) {
         muse1_EEG[i][0] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/theta_absolute")) {
       for(int i=0; i<4; i++) {
         muse1_EEG[i][1] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
       
       //// CALC RELATIVE VALUES HERE BECAUSE THETA GETS SEND OUT LAST 
       //for(int i=0; i<4; i++) {
@@ -378,79 +393,79 @@ void oscEvent(OscMessage theOscMessage) {
       for(int i=0; i<4; i++) {
         muse1_EEG[i][2] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/beta_absolute")) {
       for(int i=0; i<4; i++) {
         muse1_EEG[i][3] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/gamma_absolute")) {
       for(int i=0; i<4; i++) {
         muse1_EEG[i][4] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/delta_relative")) {
       for(int i=0; i<4; i++) {
         muse1_EEG_rel[i][0] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/theta_relative")) {
       for(int i=0; i<4; i++) {
         muse1_EEG_rel[i][1] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/alpha_relative")) {
       for(int i=0; i<4; i++) {
         muse1_EEG_rel[i][2] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/beta_relative")) {
       for(int i=0; i<4; i++) {
         muse1_EEG_rel[i][3] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/gamma_relative")) {
       for(int i=0; i<4; i++) {
         muse1_EEG_rel[i][4] = theOscMessage.get(i).floatValue();
       }
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/blink")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
       int blinkVal = theOscMessage.get(0).intValue();
       //if (blinkVal == 1) println("muse blink "+blinkVal);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/jaw_clench")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
       int jawVal = theOscMessage.get(0).intValue();
       //if (jawVal == 1) println("jaw clench");
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft0")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft1")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft2")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/raw_fft3")) {
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/experimental/concentration")) {
       muse1_concentration = (theOscMessage.get(0).floatValue());
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
     else if (theOscMessage.addrPattern().equals("/muse/elements/experimental/mellow")) {
       muse1_mellow = (theOscMessage.get(0).floatValue());
-      oscP5.send(theOscMessage, myNetAddressList);
+      if (!blockMostOSC) oscP5.send(theOscMessage, myNetAddressList);
     }
   }
   
@@ -480,4 +495,10 @@ private void disconnect(String theIPaddress) {
     println("### "+theIPaddress+" is not connected.");
   }
   println("### currently there are "+myNetAddressList.list().size());
+}
+
+void keyReleased() {
+  if (key == 'b') {
+    blockMostOSC = !blockMostOSC;
+  }
 }

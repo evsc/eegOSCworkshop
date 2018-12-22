@@ -6,6 +6,9 @@
 import oscP5.*;
 import netP5.*;
 
+// define if your'e streaming muse2014 "/muse" or muse2016 "/muse2"
+String start = "/mus2";
+
 
 OscP5 oscP5;
 /* a NetAddress contains the ip address and 
@@ -105,6 +108,8 @@ void setup() {
   
   prepareExitHandler();
   connectOscClient();
+  
+  frameRate(15);
 }
 
 
@@ -128,6 +133,7 @@ void draw() {
     text(interpolate, 320, 55);
     text(ram, 320, 70);
     textAlign(LEFT, TOP);
+    text(nfs(frameRate,0,2)+" FPS", 200, 95);
     
     
     fill(mainColor);
@@ -785,12 +791,12 @@ void drawFrame(int w, int h) {
 
 /* incoming osc message are forwarded to the oscEvent method. */
 void oscEvent(OscMessage theOscMessage) {
-  // theOscMessage.print();
-  
+  //theOscMessage.print();
+
   if(block) return;
   
   // muse
-  if (theOscMessage.addrPattern().equals("/muse/elements/horseshoe")) {
+  if (theOscMessage.addrPattern().equals(start+"/elements/horseshoe")) {
       for (int i=0; i<4; i++) museStatus[i] = int(theOscMessage.get(i).floatValue());
       
         //// THERE'S AT LEAST THIS VALUE ONCE PER ROUND
@@ -818,61 +824,61 @@ void oscEvent(OscMessage theOscMessage) {
       }
       
       
-  } else if (theOscMessage.addrPattern().equals("/muse/config")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/config")) {
     String config_json = theOscMessage.get(0).stringValue();
     JSONObject jo = JSONObject.parse(config_json);
     museBattery = jo.getInt("battery_percent_remaining");
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/delta_absolute")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/delta_absolute")) {
     for(int i=0; i<4; i++) {
       museEEGabsolute[i][0] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/theta_absolute")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/theta_absolute")) {
     for(int i=0; i<4; i++) {
       museEEGabsolute[i][1] = theOscMessage.get(i).floatValue();
       
     }
 
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/alpha_absolute")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/alpha_absolute")) {
     for(int i=0; i<4; i++) {
       museEEGabsolute[i][2] = theOscMessage.get(i).floatValue();
       
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/beta_absolute")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/beta_absolute")) {
     for(int i=0; i<4; i++) {
       museEEGabsolute[i][3] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/gamma_absolute")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/gamma_absolute")) {
     for(int i=0; i<4; i++) {
       museEEGabsolute[i][4] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/delta_relative")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/delta_relative")) {
     for(int i=0; i<4; i++) {
       museEEGrelative[i][0] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/theta_relative")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/theta_relative")) {
     for(int i=0; i<4; i++) {
       museEEGrelative[i][1] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/alpha_relative")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/alpha_relative")) {
     for(int i=0; i<4; i++) {
       museEEGrelative[i][2] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/beta_relative")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/beta_relative")) {
     for(int i=0; i<4; i++) {
       museEEGrelative[i][3] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/gamma_relative")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/gamma_relative")) {
     for(int i=0; i<4; i++) {
       museEEGrelative[i][4] = theOscMessage.get(i).floatValue();
     }
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/blink")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/blink")) {
     museBlink = theOscMessage.get(0).intValue();
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/jaw_clench")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/jaw_clench")) {
     museJaw = theOscMessage.get(0).intValue();
-  } else if (theOscMessage.addrPattern().equals("/muse/elements/experimental/concentration")) {
+  } else if (theOscMessage.addrPattern().equals(start+"/elements/experimental/concentration")) {
     muse_concentration = (theOscMessage.get(0).floatValue());
   }
-  else if (theOscMessage.addrPattern().equals("/muse/elements/experimental/mellow")) {
+  else if (theOscMessage.addrPattern().equals(start+"/elements/experimental/mellow")) {
     muse_mellow = (theOscMessage.get(0).floatValue());
   }
   
