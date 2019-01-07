@@ -1,5 +1,5 @@
 /*
- * MUSE_ONE
+ * MUSE_THREE
  * receive data from eeg_broadcast_3
  *
  * display brainwave data in time series and as graphs
@@ -14,8 +14,7 @@ import netP5.*;
 // CHANGE THE IP ADDRESS TO THE IP ADDRESS OF THE OSC SERVER !!
 String broadcastIP = "127.0.0.1";
 
-// CHANGE TO THE OSC PATTERN OF THE MUSE YOU WANT TO DISPLAY
-String patternMuse = "/Person1";
+String[] patternMuse = { "/Person1", "/Person2", "/Person3" };
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
@@ -32,11 +31,37 @@ boolean block = false;
 
 /*****************************MUSE DATA**************************/
 
-int museBattery = 0;
-int museStatus[];
-float museFrequencyBands[];
+ArrayList muses;
 
-ArrayList samples; 
+class Muse {
+  
+  int id;
+  String patternMuse;
+  int museBattery = 0;
+  int museStatus[];
+  float museFrequencyBands[];
+  ArrayList samples; 
+  
+  Muse(int _id, String _name) {
+    id = _id;
+    patternMuse = _name;
+    clearValues();
+    samples = new ArrayList(1);
+  }
+  
+  void clearValues() {
+    museBattery = 0;
+    museStatus = new int[4];
+    for (int i=0; i<4; i++) {
+      museStatus[i] = 4;
+    }
+    museFrequencyBands = new float[5];
+    for (int j=0; j<5; j++) {
+      museFrequencyBands[j] = 0;
+    }
+  }
+  
+}
 
 class MuseSample {
   float[] relative;
@@ -80,17 +105,19 @@ color textColor = color(0);
 color titleColor = color(0,100,200);
 color bgColor = color(200);
 
-boolean displayAvg = false;
-
 /***************************************************************/
 
 
 
 
 void setup() {
-  size(1200,850);
+  size(1200,900);
   
-  clearValues();
+  muses = new ArrayList();
+  for(int i=0; i<patternMuse.length; i++) {
+    Muse m = new Muse(i,patternMuse[i]);
+    muses.add(m);
+  }
   
   
   /* create a new instance of oscP5. 
@@ -104,8 +131,6 @@ void setup() {
   smFont = createFont("", 18);
   bigFont = createFont("", 30);
   textFont(bigFont);
-  
-  samples = new ArrayList(1);
 
   prepareExitHandler();
   connectOscClient();
@@ -119,70 +144,89 @@ void draw() {
     background(bgColor);
     noStroke();
     textAlign(LEFT, TOP);
+    
+    int y = 20;
+    int x = 20;
 
     fill(titleColor);
     textFont(bigFont);
-    text("MUSE_ONE", 20,20);
-    
-    
-    // FREQUENCY BINS
-    drawBin(650,20, 500, 350);
-   
-    // TIME GRAPH
-    drawTimeSeries(20,400, 1130,400);
-    
-    
-    
-    textAlign(LEFT, TOP);
-    fill(textColor);
-    textFont(bigFont);
-    int y = 30;
-    text("muse", 20,y+=30);
-    text(patternMuse, 220, y);
-    text("battery", 20, y+=30);
-    text(museBattery +" %", 220, y);
-    text("interpolate [i]", 20, y+=30);
-    text(interpolate, 220, y);
-    text("ram [r]", 20, y+=30);
-    text(ram, 220, y);
-    if(block) text("blocked input", 20, y+=30);
-    
-    
-    
-    // write out average across RAM
-    float[] sum = new float[5];
-    int cnts = 0;
-    int m = min(ram, samples.size());
-    for (int i=0; i<m; i++) {
-      MuseSample f = (MuseSample) samples.get(i);
-      for (int b=0; b<5; b++) {
-        sum[b] += f.relative[b];
-      }
-      cnts++;
-    }
-      
-    if (cnts > 0 && displayAvg) {
-      fill(textColor);
-      y+=30;
-      text("averaged",20,y+30);
-      for (int b=0; b<5; b++) {
-        fill(binColor[b]);
-        float avg = sum[b]/cnts;
-        text(museEEGwave[b], 220, y+=30);
-        text(avg, 420, y);
-      }
-      y-=50;
-    }
-    
+    text("MUSE_THREE", x,y+=30);
     fill(150);
-    text(int(frameRate)+" FPS", 20, y+=60);
+    text(int(frameRate)+" FPS", width-150,y);
+    text("interpolate [i]", x, y+=30);
+    text(interpolate, x+220, y);
+    text("ram [r]", x, y+=30);
+    text(ram, x+220, y);  
+    
+
+    
+    for(int _m=0; _m<muses.size(); _m++) {
+      
+      y = 100;
+      
+      Muse m = (Muse) muses.get(_m);
+
+      textAlign(LEFT, TOP);
+      fill(textColor);
+      textFont(bigFont);
+      
+      text("muse", x,y+=50);
+      text(m.patternMuse, x+150, y);
+      text("battery", x, y+=30);
+      text(m.museBattery +" %", x+150, y);
+
+      // FREQUENCY BINS
+      drawBin(m, x,y+=40, 370, 300);
+     
+      // TIME GRAPH
+      drawTimeSeries(m, x,y+=320, 370,300);
+    
+      // write out average across RAM
+      float[] sum = new float[5];
+      int cnts = 0;
+      int min = min(ram, m.samples.size());
+      for (int i=0; i<min; i++) {
+        MuseSample f = (MuseSample) m.samples.get(i);
+        for (int b=0; b<5; b++) {
+          sum[b] += f.relative[b];
+        }
+        cnts++;
+      }
+      
+      if (cnts > 0) {
+        y+=300;
+        textFont(bigFont);
+        for (int b=0; b<5; b++) {
+          fill(binColor[b]);
+          float avg = sum[b]/cnts;
+          text(nfs(avg,0,2), 30+x+b*370/5.0, y);
+        }
+      }
+    
+      x+=390;
+      
+    }
+    
+    
+    
+    
+    
+
+    
+    
+    
+
+    
+    
    
   }
  
 }
 
 
-void drawBin(int x, int y, int w, int h) {
+void drawBin(Muse m, int x, int y, int w, int h) {
+  
+  //Muse m = (Muse) muses.get(_m);
   
   int toplegend = 30;
   int legend = 60;
@@ -204,16 +248,11 @@ void drawBin(int x, int y, int w, int h) {
   textLeading(25);
   for(int i=0; i<5; i++) text(museEEGwave[i], (i+0.0)*scaleX, toplegend+graphh, scaleX, 30);
   for(int i=0; i<5; i++) text(museEEGhz[i], (i+0.0)*scaleX, toplegend+graphh+25, scaleX, 30);
-  
-  //// draw bins
-  textFont(bigFont);
-  textAlign(CENTER, TOP);
-  text("Relative Frequency Bands", w/2,10);
 
   for(int i=0; i<5; i++) {
     fill(binColor[i]);
-    rect(i*scaleX, toplegend+graphh, scaleX, (float) museFrequencyBands[i]*scaleY*-1);
-    text(nfs(museFrequencyBands[i],0,2), i*scaleX+scaleX/2, toplegend+graphh-35+museFrequencyBands[i]*scaleY*-1);
+    rect(i*scaleX, toplegend+graphh, scaleX, (float) m.museFrequencyBands[i]*scaleY*-1);
+    text(nfs(m.museFrequencyBands[i],0,2), i*scaleX+scaleX/2, toplegend+graphh-35+m.museFrequencyBands[i]*scaleY*-1);
   }
   
   
@@ -230,51 +269,32 @@ void drawBin(int x, int y, int w, int h) {
 
 
 
-void drawTimeSeries(int x, int y, int w, int h) {
+void drawTimeSeries(Muse m, int x, int y, int w, int h) {
+  
+  //Muse m = (Muse) muses.get(_m);
   
   pushMatrix();
   translate(x, y);
   drawFrame(w,h);
   
-  int legend = 70;
   int graphh = h;
-  int graphw = w-legend;
+  int graphw = w;
   
   float scaleX = graphw / (float) (ram-1);  // 
   float scaleY = graphh / 0.7f;  // 
-  
-  textFont(bigFont);
-  fill(textColor);
-  textAlign(LEFT, TOP);
-  String title = "Relative Frequency Band Time Series";
-  text(title, legend+10, 10);
-
-  // draw legend
-  textFont(smFont);
-  textAlign(RIGHT, CENTER);
-  float topLegend = 0.6;
-  float addLegend = 0.1;
-  for(float i=0.1; i<topLegend; i+=addLegend) {
-    stroke(textColor); noFill();
-    line(legend, graphh-i*scaleY, legend-5, graphh-i*scaleY);
-    fill(textColor); noStroke();
-    text( nf(i,0,1), legend-20, graphh-i*scaleY-3 );
-  }
-  
 
   ArrayList lastX = new ArrayList();
   
-  noFill();
-  if(samples.size() > 1) {
+  if(m.samples.size() > 1) {
     
     // minimum number of samples
-    int m = min(ram, samples.size());
+    int min = min(ram, m.samples.size());
 
     for(int b=0; b<5; b++) {
       
       int i = 0;
       
-      fill(binColor[b],150); 
+      fill(binColor[b],150); noStroke();
       if(b==4) fill(binColor[b],220);
       beginShape();
       vertex(w, graphh); // right end of graph
@@ -283,11 +303,11 @@ void drawTimeSeries(int x, int y, int w, int h) {
       int cnts = 0;
       float interpolated = 0;
       
-      for(i=0; i<m; i++) {
+      for(i=0; i<min; i++) {
         
         cnts = 0;
         float interSum = 0;
-        MuseSample sample = (MuseSample) samples.get(samples.size()-i-1);
+        MuseSample sample = (MuseSample) m.samples.get(m.samples.size()-i-1);
         lastX.add(sample);
         if(lastX.size() > interpolate) lastX.remove(0);
           
@@ -305,30 +325,7 @@ void drawTimeSeries(int x, int y, int w, int h) {
       vertex(w-(i-2)*scaleX, graphh);
       endShape();
     }
-    
-    
-    
-    textAlign(RIGHT, TOP);
-    fill(textColor);
-    textFont(smFont);
-    int every = int(200.0 / (graphw / float(ram)));
-    
-    for(int i=0; i<m; i+=every) {
-      MuseSample sample = (MuseSample) samples.get(samples.size()-i-1);
-      text(sample.time, w-i*scaleX, 40);
-    }
-    
-    
-    // draw status indicator
-    strokeWeight(1.0);
-    for(int i=0; i<m; i++) {
-      MuseSample sample = (MuseSample) samples.get(samples.size()-i-1);
-      for(int s=0; s<4; s++) {
-        stroke(textColor);
-        if(sample.museStatus[s] != 1) point(w-i*scaleX, 65+s*2);
-      }
-    }
-      
+
 
   }
   
@@ -360,67 +357,60 @@ void oscEvent(OscMessage theOscMessage) {
   
   if(block) return;
   
-  // only let through the signals of the Muse unit we want to listen to
-  if (!theOscMessage.addrPattern().substring(0,patternMuse.length()).equals(patternMuse)) {
-    return;
+  int whichMuse = -1;
+      
+  for( int i=0; i<muses.size(); i++) {
+    if (theOscMessage.addrPattern().substring(0,patternMuse[i].length()).equals(patternMuse[i])) {
+      whichMuse = i;
+    }
   }
   
-  String addp = theOscMessage.addrPattern().substring(patternMuse.length());
-  // println("addp "+addp + " muse "+muse);
-  
-  if (addp.equals("/batt")) {
-    museBattery = theOscMessage.get(0).intValue();
-  } else if (addp.equals("/horseshoe")) {
-      for (int i=0; i<4; i++) museStatus[i] = theOscMessage.get(i).intValue();
-      
-        //// HORSESHOE happens at least once per round,
-        //// so let's store the last values in memory now!
-      MuseSample sample = new MuseSample();
-      for(int i=0; i<5; i++) {
-       sample.relative[i] = museFrequencyBands[i];
-      }
-      for(int i=0; i<4; i++) {
-       sample.museStatus[i] = museStatus[i];
-      }
-      sample.time = nf(hour(),2,0) + ":" + nf(minute(),2,0);
-      samples.add(sample);
+  if (whichMuse != -1) {
     
-      if(samples.size() > maxmemory) {
-       samples.remove(0);
-      }
+    Muse m = (Muse) muses.get(whichMuse);
+
+    String addp = theOscMessage.addrPattern().substring(patternMuse[whichMuse].length());
+    // println("addp "+addp + " muse "+muse);
+    
+    if (addp.equals("/batt")) {
+      m.museBattery = theOscMessage.get(0).intValue();
+    } else if (addp.equals("/horseshoe")) {
+        for (int i=0; i<4; i++) m.museStatus[i] = theOscMessage.get(i).intValue();
+        
+          //// HORSESHOE happens at least once per round,
+          //// so let's store the last values in memory now!
+        MuseSample sample = new MuseSample();
+        for(int i=0; i<5; i++) {
+         sample.relative[i] = m.museFrequencyBands[i];
+        }
+        for(int i=0; i<4; i++) {
+         sample.museStatus[i] = m.museStatus[i];
+        }
+        sample.time = nf(hour(),2,0) + ":" + nf(minute(),2,0);
+        m.samples.add(sample);
       
-      
-  } else if (addp.equals("/delta")) {
-    museFrequencyBands[0] = theOscMessage.get(0).floatValue();
-  } else if (addp.equals("/theta")) {
-    museFrequencyBands[1] = theOscMessage.get(0).floatValue();
-  } else if (addp.equals("/alpha")) {
-    museFrequencyBands[2] = theOscMessage.get(0).floatValue();
-  } else if (addp.equals("/beta")) {
-    museFrequencyBands[3] = theOscMessage.get(0).floatValue();
-  } else if (addp.equals("/gamma")) {
-    museFrequencyBands[4] = theOscMessage.get(0).floatValue();
+        if(m.samples.size() > maxmemory) {
+         m.samples.remove(0);
+        }
+        
+        
+    } else if (addp.equals("/delta")) {
+      m.museFrequencyBands[0] = theOscMessage.get(0).floatValue();
+    } else if (addp.equals("/theta")) {
+      m.museFrequencyBands[1] = theOscMessage.get(0).floatValue();
+    } else if (addp.equals("/alpha")) {
+      m.museFrequencyBands[2] = theOscMessage.get(0).floatValue();
+    } else if (addp.equals("/beta")) {
+      m.museFrequencyBands[3] = theOscMessage.get(0).floatValue();
+    } else if (addp.equals("/gamma")) {
+      m.museFrequencyBands[4] = theOscMessage.get(0).floatValue();
+    }
+  
   }
-  
-  
   
 }
 
 
-void clearValues() {
-  
-  museBattery = 0;
-  
-  museStatus = new int[4];
-  for (int i=0; i<4; i++) {
-    museStatus[i] = 4;
-  }
-  museFrequencyBands = new float[5];
-  for (int j=0; j<5; j++) {
-    museFrequencyBands[j] = 0;
-  }
-
-}
 
 void connectOscClient() {
   OscMessage m;
@@ -455,12 +445,9 @@ private void prepareExitHandler() {
 
 void keyPressed() {
   switch(key) {
-    case('a'):
-      displayAvg = !displayAvg;
-      break;
     case('p'):
       String daytime = nf(year(),4,0) + nf(month(),2,0) + nf(day(),2,0) + "_"+ nf(hour(),2,0) + nf(minute(),2,0) + nf(second(), 2,0);
-      saveFrame("screenshots/muse_one_"+daytime+".png");
+      saveFrame("screenshots/muse_three_"+daytime+".png");
       break;
     case(' '):
       pause = !pause;

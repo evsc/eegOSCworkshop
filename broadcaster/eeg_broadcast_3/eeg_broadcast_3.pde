@@ -12,12 +12,13 @@ import oscP5.*;
 import netP5.*;
 
 
-String[] patternMuse = { "/Person0", "/Person1", "/muse" };
-String[] patternReplace = { "/Person0", "/Person1", "/Person2" };
+String[] patternMuse = { "/Person1", "/Person2", "/muse" };
+String[] patternReplace = { "/Person1", "/Person2", "/Person3" };
 
 
 OscP5 oscP5;
 NetAddressList myNetAddressList = new NetAddressList();
+String myIP = "192.168.0.100";
 int myListeningPort = 5001;
 int myBroadcastPort = 12000;
 String myConnectPattern = "/eeg/connect";
@@ -26,6 +27,7 @@ String myDisconnectPattern = "/eeg/disconnect";
 
 boolean doMuse = true;
 boolean ready = false;
+boolean incomingData = false;
 
 PFont myFont;
 
@@ -114,7 +116,12 @@ void draw() {
   textSize(32);
   fill(255,0,0);
   text("MUSE - EEG BROADCAST", 10,topline);
+  text(myIP, width-230,topline);
   fill(100);
+  if(incomingData) {
+    text("DATA", width-150, height-60);
+    incomingData = false;
+  }
   text(int(frameRate)+ " FPS", width-150, height-30);
   
   
@@ -192,7 +199,7 @@ void draw() {
 void oscEvent(OscMessage theOscMessage) {
   
   //println(theOscMessage.addrPattern());
-  
+  incomingData = true;
   
 
 
