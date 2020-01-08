@@ -9,7 +9,7 @@
 			"modernui" : 1
 		}
 ,
-		"rect" : [ 93.0, 100.0, 730.0, 632.0 ],
+		"rect" : [ 781.0, 151.0, 730.0, 632.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -981,7 +981,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 240.0, 173.0, 432.0, 27.0 ],
 					"style" : "",
-					"text" : "CHANGE NAME OF SENSOR  (instead of /Person1)",
+					"text" : "CHANGE NAME OF SENSOR  (instead of /Person5)",
 					"textcolor" : [ 0.466667, 0.254902, 0.607843, 1.0 ]
 				}
 
@@ -1126,7 +1126,7 @@
 					"outlettype" : [ "", "", "", "", "", "", "", "" ],
 					"patching_rect" : [ 32.0, 202.0, 642.0, 22.0 ],
 					"style" : "",
-					"text" : "route /Person1/batt /Person1/horseshoe /Person1/delta /Person1/theta /Person1/alpha /Person1/beta /Person1/gamma"
+					"text" : "route /Person5/batt /Person5/horseshoe /Person5/delta /Person5/theta /Person5/alpha /Person5/beta /Person5/gamma"
 				}
 
 			}
@@ -1198,9 +1198,9 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 32.0, 98.757141, 214.0, 30.0 ],
+					"patching_rect" : [ 32.0, 98.757141, 259.0, 30.0 ],
 					"style" : "",
-					"text" : "udpsend 127.0.0.1 5001"
+					"text" : "udpsend 192.168.0.101 5001"
 				}
 
 			}

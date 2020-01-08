@@ -12,10 +12,10 @@ import netP5.*;
 
 /*********************NETWORK SETTINGS**************************/
 // CHANGE THE IP ADDRESS TO THE IP ADDRESS OF THE OSC SERVER !!
-String broadcastIP = "127.0.0.1";
+String broadcastIP = "192.168.0.101";
 
 // CHANGE TO THE OSC PATTERN OF THE MUSE YOU WANT TO DISPLAY
-String patternMuse = "/Person1";
+String patternMuse = "/Person5";
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
@@ -153,7 +153,7 @@ void draw() {
     float[] sum = new float[5];
     int cnts = 0;
     int m = min(ram, samples.size());
-    for (int i=0; i<m; i++) {
+    for (int i=samples.size()-m; i<samples.size(); i++) {
       MuseSample f = (MuseSample) samples.get(i);
       for (int b=0; b<5; b++) {
         sum[b] += f.relative[b];

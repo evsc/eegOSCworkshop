@@ -950,7 +950,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 150.0, 159.0, 432.0, 27.0 ],
 					"style" : "",
-					"text" : "CHANGE NAME OF SENSOR  (instead of /Person1)",
+					"text" : "CHANGE NAME OF SENSOR  (instead of /Person5)",
 					"textcolor" : [ 0.466667, 0.254902, 0.607843, 1.0 ]
 				}
 
@@ -966,7 +966,7 @@
 					"outlettype" : [ "", "", "", "", "", "" ],
 					"patching_rect" : [ 28.0, 188.0, 457.0, 22.0 ],
 					"style" : "",
-					"text" : "route /Person1/delta /Person1/theta /Person1/alpha /Person1/beta /Person1/gamma"
+					"text" : "route /Person5/delta /Person5/theta /Person5/alpha /Person5/beta /Person5/gamma"
 				}
 
 			}
@@ -1065,9 +1065,9 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 28.0, 93.757141, 214.0, 30.0 ],
+					"patching_rect" : [ 28.0, 93.757141, 259.0, 30.0 ],
 					"style" : "",
-					"text" : "udpsend 127.0.0.1 5001"
+					"text" : "udpsend 192.168.0.101 5001"
 				}
 
 			}
@@ -1081,9 +1081,9 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-15", 0 ],
+					"destination" : [ "obj-14", 0 ],
 					"hidden" : 1,
-					"source" : [ "obj-21", 1 ]
+					"source" : [ "obj-21", 0 ]
 				}
 
 			}
@@ -1091,7 +1091,7 @@
 				"patchline" : 				{
 					"destination" : [ "obj-15", 0 ],
 					"hidden" : 1,
-					"source" : [ "obj-21", 0 ]
+					"source" : [ "obj-21", 1 ]
 				}
 
 			}

@@ -12,9 +12,9 @@ import netP5.*;
 
 /*********************NETWORK SETTINGS**************************/
 // CHANGE THE IP ADDRESS TO THE IP ADDRESS OF THE OSC SERVER !!
-String broadcastIP = "127.0.0.1";
+String broadcastIP = "192.168.0.100";
 
-String[] patternMuse = { "/Person1", "/Person2", "/Person3" };
+String[] patternMuse = { "/Person4", "/Person5", "/Person6" };
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
@@ -185,7 +185,7 @@ void draw() {
       float[] sum = new float[5];
       int cnts = 0;
       int min = min(ram, m.samples.size());
-      for (int i=0; i<min; i++) {
+      for (int i=m.samples.size()-min; i<m.samples.size(); i++) {
         MuseSample f = (MuseSample) m.samples.get(i);
         for (int b=0; b<5; b++) {
           sum[b] += f.relative[b];
