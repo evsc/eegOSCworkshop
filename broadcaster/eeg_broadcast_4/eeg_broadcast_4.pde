@@ -1,39 +1,56 @@
 /*
- * receive MUSE2014 data via OSC from muse-io
- * receive 2x MUSE2016 via OSC from muse direct
- * and broadcast via OSC
+ * can receive OSC data from:
+ * - any MUSE via OSC from mind-monitor app (https://mind-monitor.com)
+ * - MUSE2014 data via OSC from muse-io (Ubuntu, discontinued)
+ * - MUSE2016 via OSC from muse direct (Windows, discontinued)
+ * and broadcast that data via OSC to multiple clients
  *
- * start muse driver MUSEIO
+ * Mind Monitor how to:
+ * settings
+   - OSC Stream Traget IP .. set to this computer IP
+   - OSC Stream Port .. set to 5001
+   - OSC Stream Brainwaves .. set to "average only"
+   - OSC Path prefix .. /phone1
+ *
+ *
+ * Muse-IO how to:
+ * start muse driver MUSEIO on Ubuntu
  * ./muse-io --device 00:06:66:6C:11:66 --preset 14 --50hz --dsp --osc osc.udp://localhost:5001,osc.udp://localhost:5002
+ *
+ * Muse Direct how to:
+ * 
+ *
+ *
  */
  
-
+ 
+ 
 import oscP5.*;
 import netP5.*;
 
-/// /muse .. from ubuntu
-/// Person1 .. from Muse direct
-//String[] patternMuse = { "/tablet2/muse", "Person0", "/muse","/phone2/muse", "/dtlj/muse", "/phone1/muse" };
-//String[] patternReplace = { "/Person1", "/Person2", "/Person3", "/Person4", "/Person5", "/Person6" };
-// "/muse" has to be in first position, else there's an OSC warning
-String[] patternMuse = { "/muse", "Person0", "/tablet2/muse", "/phone2/muse", "/dtlj/muse", "/phone1/muse" };
+/// /muse .. from ubuntu (has to be in first array position, else there's an OSC warning)
+String[] patternMuse = { "/phone7/muse", "/phone2/muse", "/phone3/muse", "/phone4/muse", "/tablet5/muse", "/tablet6/muse" };
 String[] patternReplace = { "/Person1", "/Person2", "/Person3", "/Person4", "/Person5", "/Person6" };
+
+String myIP = "192.168.0.101";
+
+
+
+
+
+///////////////////// OSC ////////////////////////////
 
 OscP5 oscP5;
 NetAddressList myNetAddressList = new NetAddressList();
-String myIP = "192.168.0.100";
-//String myIP = "127.0.0.1";
 int myListeningPort = 5001;
 int myBroadcastPort = 12000;
 String myConnectPattern = "/eeg/connect";
 String myDisconnectPattern = "/eeg/disconnect";
 
 
-boolean doMuse = true;
-boolean ready = false;
-boolean incomingData = false;
 
-PFont myFont;
+
+/////////////////////// eeg ////////////////////
 
 int numMuses = patternMuse.length;
 MuseUnit[] muses;
@@ -46,7 +63,15 @@ String[] museEEGband = {"Delta (1-4)",
 
 String[] museEEGaddress = { "/delta", "/theta", "/alpha", "/beta", "/gamma"};
 
+boolean doMuse = true;    // decode incoming osc messages for MUSE data
+boolean ready = false;
+boolean incomingData = false;
+boolean broadcastAbsolute = true;
+
+
+PFont myFont;
 long lastTimer;
+
 
 
 class MuseUnit {
@@ -64,11 +89,9 @@ class MuseUnit {
   
   int signal_cnt;
   int signal_lastsec; 
- 
+  
   MuseUnit(int _id) {
-    id = _id;
-    batt = -1;
-    touching_forehead = -1;
+    id = _id; batt = -1; touching_forehead = -1;
     horseshoe = new int[4];
     for (int i=0; i<4; i++) horseshoe[i] = 9;
     relative = new float[4][5];
@@ -93,7 +116,6 @@ class MuseUnit {
     for (int b=0; b<5; b++) {
       sum += pow(10,absolute_avg[b]);
     }
-    
     // alpha_relative = (10^alpha_absolute / (10^alpha_absolute + 10^beta_absolute + 10^delta_absolute + 10^gamma_absolute + 10^theta_absolute))
     for (int b=0; b<5; b++) {
       relative_avg[b] = pow(10,absolute_avg[b]) / sum;
@@ -102,10 +124,8 @@ class MuseUnit {
   
   void avg_relative(int b) {
     if (b >= 0 && b <=4) {
-      
       float total = 0;
       int cnts = 0;
-      
       for (int i=0; i<4; i++) {
         float v = relative[i][b];
         if (!Float.isNaN(v)) {
@@ -114,16 +134,13 @@ class MuseUnit {
         }
       }
       relative_avg[b] = cnts > 0 ? total/cnts : 0;
-      
     }
   }
   
   void avg_absolute(int b) {
     if (b >= 0 && b <=4) {
-      
       float total = 0;
       int cnts = 0;
-
       for (int i=0; i<4; i++) {
         float v = absolute[i][b];
         if (!Float.isNaN(v)) {
@@ -132,11 +149,12 @@ class MuseUnit {
         }
       }
       absolute_avg[b] = cnts > 0 ? total/cnts : 0;
-      
     }
   }
   
 }
+
+
 
 
 
@@ -156,12 +174,14 @@ void setup() {
 
   lastTimer = millis();
   ready = true;
-  
-  
 }
 
+
+
+
+
+
 void draw() {
-  
   
   if(millis() - lastTimer > 1000) {
     lastTimer = millis();
@@ -173,14 +193,11 @@ void draw() {
   }
   
   
-  
-  
   int topline = 40;
   int header = 80;
   int firstline = 120;
   
   background(50);
-  
   
   textSize(32);
   fill(255,0,0);
@@ -209,11 +226,13 @@ void draw() {
   text("/forehead", x, y+=20);
   text("/horseshoe", x, y+=20);
   y+=20;
-  text("/delta", x, y+=20);
-  text("/theta", x, y+=20);
-  text("/alpha", x, y+=20);
-  text("/beta", x, y+=20);
-  text("/gamma", x, y+=20);
+  String addon = "  R";
+  if(broadcastAbsolute) addon+=" (A)";
+  text("/delta"+addon, x, y+=20);
+  text("/theta"+addon, x, y+=20);
+  text("/alpha"+addon, x, y+=20);
+  text("/beta "+addon, x, y+=20);
+  text("/gamma"+addon, x, y+=20);
   y+=20;
   text("update rate", x, y+=20);
 
@@ -244,6 +263,7 @@ void draw() {
     for(int j=0; j<5; j++) {
       //text(nfc(muses[i].relative_avg[j],2) + "    " + nfc(muses[i].absolute_avg[j],2), x, y+=20);
       text(nfc(muses[i].relative_avg[j],3), x, y+=20);
+      if(broadcastAbsolute) text("("+nfc(muses[i].absolute_avg[j],3)+")", x+70, y);
     }
     
     y+=20;
@@ -266,20 +286,24 @@ void draw() {
   fill(255,0,0);
   text("OSC CLIENTS", x, y);
   fill(255);
+  y+=20;
   for(int i=0; i<myNetAddressList.size(); i++ ) {
     //text(ipnum[0]+"."+ipnum[1]+"."+ipnum[2]+"."+ipnum[3], 10, 350+i*20, 70, 40);
-    text(myNetAddressList.get(i).address(), x, y+=20);
+    text(myNetAddressList.get(i).address(), x+=100, y);
+    if(x > width-200) {
+      y+=20;
+      x = 10;
+    }
   }
 }
 
 
- 
+
+
 void oscEvent(OscMessage theOscMessage) {
   
   //println(theOscMessage.addrPattern());
   incomingData = true;
-  
-
 
   if (ready) {
 
@@ -290,8 +314,6 @@ void oscEvent(OscMessage theOscMessage) {
     else if (theOscMessage.addrPattern().equals(myDisconnectPattern)) {
       disconnect(theOscMessage.netAddress().address());
     }
-    
-    
     
     else if (doMuse) {
       
@@ -304,11 +326,12 @@ void oscEvent(OscMessage theOscMessage) {
         }
       }
       
+      
       if (whichMuse != -1) {
         
         if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/horseshoe")) {
           //println("horseshoe "+theOscMessage.typetag());
-          if(theOscMessage.typetag().equals("ffff")) {
+          if(theOscMessage.typetag().equals("ffff")) {  // mind monitor
             for (int i=0; i<4; i++) muses[whichMuse].horseshoe[i] = (int) theOscMessage.get(i).floatValue();
           } else if(theOscMessage.typetag().equals("dddd")) {
             for (int i=0; i<4; i++) muses[whichMuse].horseshoe[i] = (int)(theOscMessage.get(i).doubleValue());
@@ -331,7 +354,7 @@ void oscEvent(OscMessage theOscMessage) {
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/batt")) {
           //println("batt " + theOscMessage.typetag());
-          if (theOscMessage.typetag().equals("iiii")) {
+          if (theOscMessage.typetag().equals("iiii")) {  // mind monitor
             muses[whichMuse].batt = theOscMessage.get(0).intValue()/100;
           } else if(theOscMessage.typetag().equals("ddd")) {
             muses[whichMuse].batt = (int) theOscMessage.get(0).doubleValue();
@@ -342,201 +365,63 @@ void oscEvent(OscMessage theOscMessage) {
           oscP5.send(m, myNetAddressList);
         }
         
-        else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/delta_relative")) {
-          //println("delta_relative " + theOscMessage.typetag());
-          for (int i=0; i<4; i++) {
-            if(theOscMessage.typetag().equals("dddd")) {
-              muses[whichMuse].relative[i][0] = (float) theOscMessage.get(i).doubleValue();
-            } else if (theOscMessage.typetag().equals("ffff")) {
-              muses[whichMuse].relative[i][0] = theOscMessage.get(i).floatValue();
-            }
-          }
-          muses[whichMuse].avg_relative(0);
-          
-          // forward avg only
-          OscMessage m = new OscMessage(patternReplace[whichMuse] + "/delta");
-          m.add(muses[whichMuse].relative_avg[0]);
-          oscP5.send(m, myNetAddressList);
-        }
         
+        else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/delta_relative")) {
+          receiveElementRelative(theOscMessage, whichMuse, 0);
+        }
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/delta_absolute")) {
-          //println("delta_absolute " + theOscMessage.typetag());
-          
-          if (theOscMessage.typetag().equals("f")) {
-             // muse monitor
-             muses[whichMuse].absolute_avg[0] = theOscMessage.get(0).floatValue();
-          } else {
-            for (int i=0; i<4; i++) {
-              if(theOscMessage.typetag().equals("dddd")) {
-                muses[whichMuse].absolute[i][0] = (float) theOscMessage.get(i).doubleValue();
-              } else if (theOscMessage.typetag().equals("ffff")) {
-                muses[whichMuse].absolute[i][0] = theOscMessage.get(i).floatValue();
-              }
-            }
-            muses[whichMuse].avg_absolute(0);
-          }
-          // forward avg only
+          receiveElementAbsolute(theOscMessage, whichMuse, 0);
         }
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/theta_relative")) {
-          //println("theta_relative " + theOscMessage.typetag());
-          for (int i=0; i<4; i++) {
-            if(theOscMessage.typetag().equals("dddd")) {
-              muses[whichMuse].relative[i][1] = (float) theOscMessage.get(i).doubleValue();
-            } else if (theOscMessage.typetag().equals("ffff")) {
-              muses[whichMuse].relative[i][1] = theOscMessage.get(i).floatValue();
-            }
-          }
-          muses[whichMuse].avg_relative(1);
-          
-          // forward avg only
-          OscMessage m = new OscMessage(patternReplace[whichMuse] + "/theta");
-          m.add(muses[whichMuse].relative_avg[1]);
-          oscP5.send(m, myNetAddressList);
+          receiveElementRelative(theOscMessage, whichMuse, 1);
         }
-        
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/theta_absolute")) {
-          //println("theta_absolute " + theOscMessage.typetag());
-          
-          if (theOscMessage.typetag().equals("f")) {
-             // muse monitor
-             muses[whichMuse].absolute_avg[1] = theOscMessage.get(0).floatValue();
-          } else {
-            for (int i=0; i<4; i++) {
-              if(theOscMessage.typetag().equals("dddd")) {
-                muses[whichMuse].absolute[i][1] = (float) theOscMessage.get(i).doubleValue();
-              } else if (theOscMessage.typetag().equals("ffff")) {
-                muses[whichMuse].absolute[i][1] = theOscMessage.get(i).floatValue();
-              }
-            }
-            muses[whichMuse].avg_absolute(1);
-          }
-          // forward avg only
+          receiveElementAbsolute(theOscMessage, whichMuse, 1);
         }
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/alpha_relative")) {
-          //println("alpha_relative " + theOscMessage.typetag());
-          for (int i=0; i<4; i++) {
-            if(theOscMessage.typetag().equals("dddd")) {
-              muses[whichMuse].relative[i][2] = (float) theOscMessage.get(i).doubleValue();
-            } else if (theOscMessage.typetag().equals("ffff")) {
-              muses[whichMuse].relative[i][2] = theOscMessage.get(i).floatValue();
-            }
-          }
-          muses[whichMuse].avg_relative(2);
-          
-          // forward avg only
-          OscMessage m = new OscMessage(patternReplace[whichMuse] + "/alpha");
-          m.add(muses[whichMuse].relative_avg[2]);
-          oscP5.send(m, myNetAddressList);
+          receiveElementRelative(theOscMessage, whichMuse, 2);
         }
-        
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/alpha_absolute")) {
-          //println("alpha_absolute " + theOscMessage.typetag());
-          
-          if (theOscMessage.typetag().equals("f")) {
-             // muse monitor
-             muses[whichMuse].absolute_avg[2] = theOscMessage.get(0).floatValue();
-          } else {
-            for (int i=0; i<4; i++) {
-              if(theOscMessage.typetag().equals("dddd")) {
-                muses[whichMuse].absolute[i][2] = (float) theOscMessage.get(i).doubleValue();
-              } else if (theOscMessage.typetag().equals("ffff")) {
-                muses[whichMuse].absolute[i][2] = theOscMessage.get(i).floatValue();
-              }
-            }
-            muses[whichMuse].avg_absolute(2);
-          }
-          // forward avg only
+          receiveElementAbsolute(theOscMessage, whichMuse, 2);
         }
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/beta_relative")) {
-          //println("beta_relative " + theOscMessage.typetag());
-          for (int i=0; i<4; i++) {
-            if(theOscMessage.typetag().equals("dddd")) {
-              muses[whichMuse].relative[i][3] = (float) theOscMessage.get(i).doubleValue();
-            } else if (theOscMessage.typetag().equals("ffff")) {
-              muses[whichMuse].relative[i][3] = theOscMessage.get(i).floatValue();
-            }
-          }
-          muses[whichMuse].avg_relative(3);
-          
-          // forward avg only
-          OscMessage m = new OscMessage(patternReplace[whichMuse] + "/beta");
-          m.add(muses[whichMuse].relative_avg[3]);
-          oscP5.send(m, myNetAddressList);
+          receiveElementRelative(theOscMessage, whichMuse, 3);
         }
-        
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/beta_absolute")) {
-          //println("beta_absolute " + theOscMessage.typetag());
-          
-          if (theOscMessage.typetag().equals("f")) {
-             // muse monitor
-             muses[whichMuse].absolute_avg[3] = theOscMessage.get(0).floatValue();
-          } else {
-            for (int i=0; i<4; i++) {
-              if(theOscMessage.typetag().equals("dddd")) {
-                muses[whichMuse].absolute[i][3] = (float) theOscMessage.get(i).doubleValue();
-              } else if (theOscMessage.typetag().equals("ffff")) {
-                muses[whichMuse].absolute[i][3] = theOscMessage.get(i).floatValue();
-              }
-            }
-            muses[whichMuse].avg_absolute(3);
-          }
-          // forward avg only
+          receiveElementAbsolute(theOscMessage, whichMuse, 3);
         }
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/gamma_relative")) {
-          //println("gamma_relative " + theOscMessage.typetag());
-          for (int i=0; i<4; i++) {
-            if(theOscMessage.typetag().equals("dddd")) {
-              muses[whichMuse].relative[i][4] = (float) theOscMessage.get(i).doubleValue();
-            } else if (theOscMessage.typetag().equals("ffff")) {
-              muses[whichMuse].relative[i][4] = theOscMessage.get(i).floatValue();
-            }
-          }
-          muses[whichMuse].avg_relative(4);
-          
-          // forward avg only
-          OscMessage m = new OscMessage(patternReplace[whichMuse] + "/gamma");
-          m.add(muses[whichMuse].relative_avg[4]);
-          oscP5.send(m, myNetAddressList);
-          
+          receiveElementRelative(theOscMessage, whichMuse, 4);
           // count the signal cnt one up, every time there's a gamma signal
           muses[whichMuse].signal_cnt++;
         }
-        
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/gamma_absolute")) {
-          //println("gamma_absolute " + theOscMessage.typetag());
-          
-          if (theOscMessage.typetag().equals("f")) {
-             // muse monitor
-             muses[whichMuse].absolute_avg[4] = theOscMessage.get(0).floatValue();
-          } else {
-            for (int i=0; i<4; i++) {
-              if(theOscMessage.typetag().equals("dddd")) {
-                muses[whichMuse].absolute[i][4] = (float) theOscMessage.get(i).doubleValue();
-              } else if (theOscMessage.typetag().equals("ffff")) {
-                muses[whichMuse].absolute[i][4] = theOscMessage.get(i).floatValue();
-              }
-            }
-            muses[whichMuse].avg_absolute(4);
-          }
-          
-          if(!patternMuse[whichMuse].equals("/muse")) {
-            muses[whichMuse].calcRelative();
+          receiveElementAbsolute(theOscMessage, whichMuse, 4);
 
+          if(!patternMuse[whichMuse].equals("/muse")) {  // mind monitor
+            muses[whichMuse].calcRelative();
             // count the signal cnt one up, every time there's a gamma signal
             muses[whichMuse].signal_cnt++;
-          
             // forward all averages now
             for(int b=0; b<5; b++) {
               OscMessage m = new OscMessage(patternReplace[whichMuse] + museEEGaddress[b]);
               m.add(muses[whichMuse].relative_avg[b]);
               oscP5.send(m, myNetAddressList);
             }
+            if(broadcastAbsolute) {
+              for(int b=0; b<5; b++) {
+                OscMessage m = new OscMessage(patternReplace[whichMuse] + museEEGaddress[b] +"/absolute");
+                m.add(muses[whichMuse].absolute_avg[b]);
+                oscP5.send(m, myNetAddressList);
+              }
+            }
           }
         }
+        
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/blink")) {
           //println("blink " + theOscMessage.typetag());
@@ -570,6 +455,49 @@ void oscEvent(OscMessage theOscMessage) {
   
   }
 }
+
+
+
+
+void receiveElementRelative(OscMessage theOscMessage, int whichMuse, int b) {
+  //println("delta_relative " + theOscMessage.typetag());
+  for (int i=0; i<4; i++) {
+    if(theOscMessage.typetag().equals("dddd")) {
+      muses[whichMuse].relative[i][b] = (float) theOscMessage.get(i).doubleValue();
+    } else if (theOscMessage.typetag().equals("ffff")) {
+      muses[whichMuse].relative[i][b] = theOscMessage.get(i).floatValue();
+    }
+  }
+  muses[whichMuse].avg_relative(b);
+  
+  // forward avg only
+  OscMessage m = new OscMessage(patternReplace[whichMuse] + museEEGaddress[b]);
+  m.add(muses[whichMuse].relative_avg[b]);
+  oscP5.send(m, myNetAddressList);
+}
+
+
+
+
+void receiveElementAbsolute(OscMessage theOscMessage, int whichMuse, int b) {
+  //println("delta_absolute " + theOscMessage.typetag());   
+  if (theOscMessage.typetag().equals("f")) {  // muse monitor
+     muses[whichMuse].absolute_avg[b] = theOscMessage.get(0).floatValue();
+  } else {
+    for (int i=0; i<4; i++) {
+      if(theOscMessage.typetag().equals("dddd")) {
+        muses[whichMuse].absolute[i][b] = (float) theOscMessage.get(i).doubleValue();
+      } else if (theOscMessage.typetag().equals("ffff")) {
+        muses[whichMuse].absolute[i][b] = theOscMessage.get(i).floatValue();
+      }
+    }
+    muses[whichMuse].avg_absolute(b);
+  }
+}
+
+
+
+
 
 
 private void connect(String theIPaddress) {

@@ -12,10 +12,10 @@ import netP5.*;
 
 /*********************NETWORK SETTINGS**************************/
 // CHANGE THE IP ADDRESS TO THE IP ADDRESS OF THE OSC SERVER !!
-String broadcastIP = "192.168.0.101";
+String broadcastIP = "192.168.1.101";
 
 // CHANGE TO THE OSC PATTERN OF THE MUSE YOU WANT TO DISPLAY
-String patternMuse = "/Person5";
+String patternMuse = "/Person2";
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 

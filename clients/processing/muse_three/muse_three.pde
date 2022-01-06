@@ -12,9 +12,9 @@ import netP5.*;
 
 /*********************NETWORK SETTINGS**************************/
 // CHANGE THE IP ADDRESS TO THE IP ADDRESS OF THE OSC SERVER !!
-String broadcastIP = "192.168.0.100";
+String broadcastIP = "192.168.0.101";
 
-String[] patternMuse = { "/Person4", "/Person5", "/Person6" };
+String[] patternMuse = { "/Person2", "/Person4", "/Person5" };
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 

@@ -14,7 +14,7 @@ import netP5.*;
 String broadcastIP = "192.168.0.101";
 
 // CHANGE TO THE OSC PATTERN OF THE MUSE YOU WANT TO DISPLAY
-String patternMuse = "/Person5";
+String patternMuse = "/Person2";
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
