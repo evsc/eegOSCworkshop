@@ -12,10 +12,10 @@ import netP5.*;
 
 /*********************NETWORK SETTINGS**************************/
 // CHANGE THE IP ADDRESS TO THE IP ADDRESS OF THE OSC SERVER !!
-String broadcastIP = "192.168.1.101";
+String broadcastIP = "10.0.0.4";
 
 // CHANGE TO THE OSC PATTERN OF THE MUSE YOU WANT TO DISPLAY
-String patternMuse = "/Person2";
+String patternMuse = "/Person1";
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
@@ -88,7 +88,7 @@ boolean displayAvg = false;
 
 
 void setup() {
-  size(1200,850);
+  size(1175,680);
   
   clearValues();
   
@@ -126,10 +126,10 @@ void draw() {
     
     
     // FREQUENCY BINS
-    drawBin(650,20, 500, 350);
+    drawBin(650,20, 500, 250);
    
     // TIME GRAPH
-    drawTimeSeries(20,400, 1130,400);
+    drawTimeSeries(20,300, 1130,350);
     
     
     

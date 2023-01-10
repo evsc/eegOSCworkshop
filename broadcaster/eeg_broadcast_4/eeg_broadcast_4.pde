@@ -29,10 +29,10 @@ import oscP5.*;
 import netP5.*;
 
 /// /muse .. from ubuntu (has to be in first array position, else there's an OSC warning)
-String[] patternMuse = { "/phone7/muse", "/phone2/muse", "/phone3/muse", "/phone4/muse", "/tablet5/muse", "/tablet6/muse" };
+String[] patternMuse = { "/phone1/muse", "/phone2/muse", "/phone3/muse", "/phone4/muse", "/tablet5/muse", "/tablet6/muse" };
 String[] patternReplace = { "/Person1", "/Person2", "/Person3", "/Person4", "/Person5", "/Person6" };
 
-String myIP = "192.168.0.101";
+String myIP = "192.168.1.3";
 
 
 
@@ -65,7 +65,11 @@ String[] museEEGaddress = { "/delta", "/theta", "/alpha", "/beta", "/gamma"};
 
 boolean doMuse = true;    // decode incoming osc messages for MUSE data
 boolean ready = false;
+boolean enableForwarding = true;
+boolean debugPrint = false;
+
 boolean incomingData = false;
+boolean[] incomingDataMuse;    // set by incoming Data, to display indicator on GUI
 boolean broadcastAbsolute = true;
 
 
@@ -159,8 +163,9 @@ class MuseUnit {
 
 
 void setup() {
-  size(1500,550);
-  oscP5 = new OscP5(this, myListeningPort);
+  size(1265,550);
+  frameRate(10);
+  oscP5 = new OscP5(this, myListeningPort);    // , OscP5.TCP
   
   myFont = loadFont("LucidaConsole-26.vlw");
   //myFont = createFont("", 16);
@@ -168,12 +173,20 @@ void setup() {
   textLeading(25);
   
   muses = new MuseUnit[numMuses];
+  incomingDataMuse = new boolean[numMuses];
   for (int i=0; i<numMuses; i++) {
     muses[i] = new MuseUnit(i+1);
+    incomingDataMuse[i] = false;
   }
 
   lastTimer = millis();
   ready = true;
+  
+  /// 
+  //OscProperties myProperties = new OscProperties();
+  //println("datagramSize: " +myProperties.datagramSize());   // 1536
+  //println("networkProtocol: "+myProperties.networkProtocol());   // 0 (UDP), 1 (MULTICAST), 2 (TCP)
+  
 }
 
 
@@ -203,12 +216,12 @@ void draw() {
   fill(255,0,0);
   text("MUSE - EEG BROADCAST", 10,topline);
   text(myIP, width-260,topline);
-  fill(100);
-  if(incomingData) {
-    text("DATA", width-150, height-60);
-    incomingData = false;
-  }
-  text(int(frameRate)+ " FPS", width-150, height-30);
+
+  textSize(16);
+  if(doMuse) text("| input enabled (i)", 450, topline);
+  else text("| input disabled (i)", 450, topline);
+  
+  
   
   
   fill(255);
@@ -238,7 +251,7 @@ void draw() {
 
   for (int i=0; i<numMuses; i++) {
     
-    if (muses[i].lastInput > millis()-1000*10) {
+    if (muses[i].lastInput > millis()-1000*3) {
       fill(255,255,0);  
     } else {
       fill(255);
@@ -268,6 +281,7 @@ void draw() {
     
     y+=20;
     text(muses[i].signal_lastsec+"Hz", x, y+=20);
+    if(incomingDataMuse[i]) text("DATA", x, y+=20);
 
     // i don't think this works
     if (muses[i].blink) {
@@ -284,7 +298,11 @@ void draw() {
   y+=100;
   
   fill(255,0,0);
+  textSize(32);
   text("OSC CLIENTS", x, y);
+  textSize(16);
+  if(enableForwarding) text("| forwarding enabled (f)", x+250, y);
+  else text("| forwarding disabled (f)", x+250, y);
   fill(255);
   y+=20;
   for(int i=0; i<myNetAddressList.size(); i++ ) {
@@ -295,6 +313,15 @@ void draw() {
       x = 10;
     }
   }
+  
+  fill(100);
+  textSize(32);
+  if(incomingData) {
+    text("DATA", width-150, height-60);
+    incomingData = false;
+    for(int m=0; m<numMuses; m++) incomingDataMuse[m] = false;
+  }
+  text(int(frameRate)+ " FPS", width-150, height-30);
 }
 
 
@@ -302,7 +329,7 @@ void draw() {
 
 void oscEvent(OscMessage theOscMessage) {
   
-  //println(theOscMessage.addrPattern());
+  if(debugPrint) println(theOscMessage.addrPattern());
   incomingData = true;
 
   if (ready) {
@@ -327,7 +354,10 @@ void oscEvent(OscMessage theOscMessage) {
       }
       
       
+      
       if (whichMuse != -1) {
+        
+        incomingDataMuse[whichMuse] = true;
         
         if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/horseshoe")) {
           //println("horseshoe "+theOscMessage.typetag());
@@ -338,18 +368,22 @@ void oscEvent(OscMessage theOscMessage) {
           } 
           
           // forward message as INTS
-          OscMessage m = new OscMessage(patternReplace[whichMuse] + "/horseshoe");
-          for (int i=0; i<4; i++) m.add(muses[whichMuse].horseshoe[i]);
-          oscP5.send(m, myNetAddressList);
+          if(enableForwarding) {
+            OscMessage m = new OscMessage(patternReplace[whichMuse] + "/horseshoe");
+            for (int i=0; i<4; i++) m.add(muses[whichMuse].horseshoe[i]);
+            oscP5.send(m, myNetAddressList);
+          }
         } 
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/touching_forehead")) {
           //println("touching_forehead "+theOscMessage.typetag());
           muses[whichMuse].touching_forehead = theOscMessage.get(0).intValue();
           
-          OscMessage m = new OscMessage(patternReplace[whichMuse] + "/forehead");
-          m.add(muses[whichMuse].touching_forehead);
-          oscP5.send(theOscMessage, myNetAddressList);
+          if(enableForwarding) {
+            OscMessage m = new OscMessage(patternReplace[whichMuse] + "/forehead");
+            m.add(muses[whichMuse].touching_forehead);
+            oscP5.send(theOscMessage, myNetAddressList);
+          }
         } 
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/batt")) {
@@ -359,10 +393,13 @@ void oscEvent(OscMessage theOscMessage) {
           } else if(theOscMessage.typetag().equals("ddd")) {
             muses[whichMuse].batt = (int) theOscMessage.get(0).doubleValue();
           }
+          
           // forward message as INT
-          OscMessage m = new OscMessage(patternReplace[whichMuse] + "/batt");
-          m.add(muses[whichMuse].batt);
-          oscP5.send(m, myNetAddressList);
+          if(enableForwarding) {
+            OscMessage m = new OscMessage(patternReplace[whichMuse] + "/batt");
+            m.add(muses[whichMuse].batt);
+            oscP5.send(m, myNetAddressList);
+          }
         }
         
         
@@ -406,19 +443,31 @@ void oscEvent(OscMessage theOscMessage) {
             muses[whichMuse].calcRelative();
             // count the signal cnt one up, every time there's a gamma signal
             muses[whichMuse].signal_cnt++;
-            // forward all averages now
-            for(int b=0; b<5; b++) {
-              OscMessage m = new OscMessage(patternReplace[whichMuse] + museEEGaddress[b]);
-              m.add(muses[whichMuse].relative_avg[b]);
-              oscP5.send(m, myNetAddressList);
-            }
-            if(broadcastAbsolute) {
+            
+            if(enableForwarding) {
+              // forward all averages now
+              OscBundle myBundle = new OscBundle();
+              OscMessage m = new OscMessage("/init");
               for(int b=0; b<5; b++) {
-                OscMessage m = new OscMessage(patternReplace[whichMuse] + museEEGaddress[b] +"/absolute");
-                m.add(muses[whichMuse].absolute_avg[b]);
-                oscP5.send(m, myNetAddressList);
+                m.setAddrPattern(patternReplace[whichMuse] + museEEGaddress[b]);
+                m.add(muses[whichMuse].relative_avg[b]);
+                myBundle.add(m);
+                m.clear();
+                //oscP5.send(m, myNetAddressList);
               }
+              if(broadcastAbsolute) {
+                for(int b=0; b<5; b++) {
+                  m.setAddrPattern(patternReplace[whichMuse] + museEEGaddress[b] +"/absolute");
+                  m.add(muses[whichMuse].absolute_avg[b]);
+                  myBundle.add(m);
+                  m.clear();
+                  //oscP5.send(m, myNetAddressList);
+                }
+              }
+              myBundle.setTimetag(myBundle.now() + 10000);
+              oscP5.send(myBundle, myNetAddressList);
             }
+            
           }
         }
         
@@ -427,7 +476,8 @@ void oscEvent(OscMessage theOscMessage) {
           //println("blink " + theOscMessage.typetag());
           int v = theOscMessage.get(0).intValue();
           muses[whichMuse].blink = (v==1) ? true : false;
-          if(v==1) {
+          
+          if(v==1 && enableForwarding) {
             OscMessage m = new OscMessage(patternReplace[whichMuse] + "/blink");
             m.add(1);
             oscP5.send(m, myNetAddressList);
@@ -470,10 +520,12 @@ void receiveElementRelative(OscMessage theOscMessage, int whichMuse, int b) {
   }
   muses[whichMuse].avg_relative(b);
   
-  // forward avg only
-  OscMessage m = new OscMessage(patternReplace[whichMuse] + museEEGaddress[b]);
-  m.add(muses[whichMuse].relative_avg[b]);
-  oscP5.send(m, myNetAddressList);
+  if(enableForwarding) {
+    // forward avg only
+    OscMessage m = new OscMessage(patternReplace[whichMuse] + museEEGaddress[b]);
+    m.add(muses[whichMuse].relative_avg[b]);
+    oscP5.send(m, myNetAddressList);
+  }
 }
 
 
@@ -520,4 +572,15 @@ private void disconnect(String theIPaddress) {
     println("### "+theIPaddress+" is not connected.");
   }
   println("### currently there are "+myNetAddressList.list().size());
+}
+
+
+void keyReleased() {
+  if(key == 'f') {
+    enableForwarding = !enableForwarding;
+  } else if(key == 'i') {
+    doMuse = !doMuse;
+  } else if(key == 'd') {
+    debugPrint = !debugPrint;
+  }
 }

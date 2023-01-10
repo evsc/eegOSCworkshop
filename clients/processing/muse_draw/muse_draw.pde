@@ -29,6 +29,7 @@ int listeningPort = 12000;
 int museBattery = 0;
 int museStatus[];
 float museFrequencyBands[];
+float lastvalue[];
 
 String[] museEEGwave = { "Delta", "Theta", "Alpha", "Beta", "Gamma"};
 String[] museEEGhz = { "1-4", "5-8", "9-13", "13-30", "30-50" };
@@ -44,15 +45,23 @@ PFont bigFont;
 color[] binColor = { color(0,0,50), color(40,40,250), color(180,0,230), color(0,250,150), color(255,50,0)};
 color textColor = color(0);
 color bgColor = color(200);
+color bgColorFade = color(200,200,200,3);
 /***************************************************************/
 
+
+boolean newInput = false;
+float rotation = 0;
+float dr = 0.1;
 
 
 
 
 void setup() {
   
-  size(800,600);
+  size(500,600);
+  frameRate(15);
+  fill(bgColor); 
+  rect(0,0,width,height);
   
   museBattery = 0;
   museStatus = new int[4];
@@ -60,8 +69,10 @@ void setup() {
     museStatus[i] = 4;
   }
   museFrequencyBands = new float[5];
+  lastvalue = new float[5];
   for (int j=0; j<5; j++) {
     museFrequencyBands[j] = 0;
+    lastvalue[j] = 0;
   }
   
   
@@ -84,44 +95,58 @@ void setup() {
 
 void draw() {
   
-  background(bgColor);
+  // DRAWING
+  fill(bgColorFade); 
+  rect(0,0,width,height);
   
-  noStroke();
-  textAlign(LEFT, TOP);
-  
-  fill(textColor);
-  textFont(bigFont);
-  text("MUSE_SIMPLE", 20,20);
-  
-  text("muse", 460,20);
-  text(patternMuse, 600, 20);
-  text("battery", 460,50);
-  text(museBattery + " %", 600, 50);
-  text("status", 460,80);
-  text(museStatus[0]+" "+museStatus[1]+" "+museStatus[2]+" "+museStatus[3], 600, 80);
-  
-  
-  
-  // draw frequency bins
-  int margin = 50;
-  float bin_width = (width - margin*2) / 5.0f;
-  float bin_height = (height -margin*3) / 1.0f;
-  
-  
-  textAlign(CENTER, TOP);
+  int ox = width/2;
+  int oy = height/2-20;
+
+  float size = 300;
   for(int i=0; i<5; i++) {
-    fill(binColor[i]);
-    rect(margin+i*bin_width, margin+bin_height, bin_width, (float) museFrequencyBands[i]*-bin_height);
-    text(nfs(museFrequencyBands[i],0,2), margin+i*bin_width+bin_width/2,margin+bin_height+museFrequencyBands[i]*-bin_height-35);
+    fill(binColor[i]); noStroke();
+    float v = museFrequencyBands[i];
+    float v0 = lastvalue[i];
+    beginShape();
+    vertex(ox,oy);
+    vertex(ox+size*v0*sin(rotation), oy+size*v0*cos(rotation));
+    vertex(ox+size*v*sin(rotation+dr), oy+size*v*cos(rotation+dr));
+    endShape(CLOSE);
+    lastvalue[i] = museFrequencyBands[i];
   }
   
-  // draw legend
-  fill(textColor); 
-  textLeading(25);
-  for(int i=0; i<5; i++) text(museEEGwave[i], margin+i*bin_width+bin_width/2, margin+bin_height+5);
-  for(int i=0; i<5; i++) text(museEEGhz[i]+ "Hz", margin+i*bin_width+bin_width/2, margin+bin_height+35);
+  rotation+=dr;
+ 
   
   
+  
+  // TEXT INFO
+  noStroke();
+  fill(bgColor);
+  rect(0,0,width,90);
+  rect(0,470,width,height-470);
+
+  textAlign(LEFT, TOP);
+  fill(textColor);
+  textSize(32);
+  textFont(bigFont);
+  text("MUSE_DRAW", 20,20);
+  
+  textSize(16);
+  int mx = 300;
+  text("muse", mx,20);
+  text(patternMuse, mx+80, 20);
+  text("battery", mx,40);
+  text(museBattery + " %", mx+80, 40);
+  text("status", mx,60);
+  text(museStatus[0]+" "+museStatus[1]+" "+museStatus[2]+" "+museStatus[3], mx+80, 60);
+  
+  
+  for(int i=0; i<5; i++) {
+    fill(binColor[i]);
+    text(museEEGwave[i] + " " + museEEGhz[i]+"Hz", mx, 480+i*20);
+    text(nfs(museFrequencyBands[i],0,2), mx+120, 480+i*20);
+  }
   
 }
 
