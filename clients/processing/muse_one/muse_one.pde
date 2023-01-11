@@ -12,10 +12,10 @@ import netP5.*;
 
 /*********************NETWORK SETTINGS**************************/
 // CHANGE THE IP ADDRESS TO THE IP ADDRESS OF THE OSC SERVER !!
-String broadcastIP = "10.0.0.4";
+String broadcastIP = "192.168.0.100";
 
 // CHANGE TO THE OSC PATTERN OF THE MUSE YOU WANT TO DISPLAY
-String patternMuse = "/Person1";
+String patternMuse = "/Person2";
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
@@ -55,14 +55,14 @@ String[] museEEGhz = { "1-4", "5-8", "9-13", "13-30", "30-50" };
 
 // MEMORY
 int maxmemory = 2001;  // how many samples to store in memory
-int ram = 1500;        // how many samples to display
-int ramP = 3;
+int ram = 500;        // how many samples to display
+int ramP = 1;
 int[] ramSteps = { 100, 500, 1000, 1500, 2000 };
 
 // INTERPOLATION
 int[] interpolateSteps = { 1, 10, 50, 100, 200, 400 };
-int interpol = 4;
-int interpolate = 200;  // in the time graph, how many samples to average across
+int interpol = 3;
+int interpolate = 100;  // in the time graph, how many samples to average across
 
 /***************************************************************/
 

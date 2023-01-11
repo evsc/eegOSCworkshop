@@ -9,7 +9,7 @@
 			"modernui" : 1
 		}
 ,
-		"rect" : [ 140.0, 95.0, 730.0, 632.0 ],
+		"rect" : [ 203.0, 107.0, 730.0, 563.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -1357,7 +1357,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 131.0, 580.0, 156.0, 31.0 ],
+					"patching_rect" : [ 130.0, 518.0, 156.0, 31.0 ],
 					"style" : "",
 					"text" : "Frequency Bins"
 				}
@@ -1376,7 +1376,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 556.0, 346.0, 56.0, 272.0 ],
+					"patching_rect" : [ 556.0, 346.0, 50.0, 203.0 ],
 					"size" : 1.0,
 					"style" : ""
 				}
@@ -1395,7 +1395,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 492.0, 346.0, 56.0, 272.0 ],
+					"patching_rect" : [ 492.0, 346.0, 50.0, 203.0 ],
 					"size" : 1.0,
 					"style" : ""
 				}
@@ -1414,7 +1414,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 428.0, 346.0, 56.0, 272.0 ],
+					"patching_rect" : [ 428.0, 346.0, 50.0, 203.0 ],
 					"size" : 1.0,
 					"style" : ""
 				}
@@ -1433,7 +1433,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 364.0, 346.0, 56.0, 272.0 ],
+					"patching_rect" : [ 364.0, 346.0, 50.0, 203.0 ],
 					"size" : 1.0,
 					"style" : ""
 				}
@@ -1452,7 +1452,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 300.0, 346.0, 56.0, 272.0 ],
+					"patching_rect" : [ 300.0, 346.0, 50.0, 203.0 ],
 					"size" : 1.0,
 					"style" : ""
 				}
@@ -1830,9 +1830,9 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 32.0, 98.757141, 259.0, 30.0 ],
+					"patching_rect" : [ 32.0, 98.757141, 206.0, 30.0 ],
 					"style" : "",
-					"text" : "udpsend 192.168.0.101 5001"
+					"text" : "udpsend 10.0.0.4 5001"
 				}
 
 			}

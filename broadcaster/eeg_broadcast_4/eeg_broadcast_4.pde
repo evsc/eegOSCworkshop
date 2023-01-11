@@ -32,7 +32,7 @@ import netP5.*;
 String[] patternMuse = { "/phone1/muse", "/phone2/muse", "/phone3/muse", "/phone4/muse", "/tablet5/muse", "/tablet6/muse" };
 String[] patternReplace = { "/Person1", "/Person2", "/Person3", "/Person4", "/Person5", "/Person6" };
 
-String myIP = "192.168.1.3";
+String myIP = "192.168.0.100";
 
 
 
@@ -67,6 +67,7 @@ boolean doMuse = true;    // decode incoming osc messages for MUSE data
 boolean ready = false;
 boolean enableForwarding = true;
 boolean debugPrint = false;
+boolean displayAlg = false;    // show mellow and concentration values
 
 boolean incomingData = false;
 boolean[] incomingDataMuse;    // set by incoming Data, to display indicator on GUI
@@ -90,6 +91,8 @@ class MuseUnit {
   float absolute[][];
   float absolute_avg[];
   boolean blink;
+  int mellow;
+  int concentration;
   
   int signal_cnt;
   int signal_lastsec; 
@@ -110,6 +113,8 @@ class MuseUnit {
       absolute_avg[i] = 0;
     }
     blink = false;
+    mellow = 0;
+    concentration = 0;
     lastInput = -10000000;
     signal_lastsec = 0;
     signal_cnt = 0;
@@ -238,6 +243,10 @@ void draw() {
   text("/batt", x, y+=20);
   text("/forehead", x, y+=20);
   text("/horseshoe", x, y+=20);
+  if(displayAlg) {
+    text("/mellow", x, y+=20);
+    text("/concentration", x, y+=20);
+  }
   y+=20;
   String addon = "  R";
   if(broadcastAbsolute) addon+=" (A)";
@@ -271,6 +280,10 @@ void draw() {
     text(muses[i].batt + " %", x, y+=20);
     text(muses[i].touching_forehead, x, y+=20);
     text(muses[i].horseshoe[0]+" "+muses[i].horseshoe[1]+" "+muses[i].horseshoe[2]+" "+muses[i].horseshoe[3], x, y+=20);
+    if(displayAlg) {
+      text(muses[i].mellow, x, y+=20);
+      text(muses[i].concentration, x, y+=20);
+    }
    
     y+=20;
     for(int j=0; j<5; j++) {
@@ -329,7 +342,7 @@ void draw() {
 
 void oscEvent(OscMessage theOscMessage) {
   
-  if(debugPrint) println(theOscMessage.addrPattern());
+  if(debugPrint) println(theOscMessage.addrPattern()+" "+theOscMessage.typetag());
   incomingData = true;
 
   if (ready) {
@@ -367,23 +380,16 @@ void oscEvent(OscMessage theOscMessage) {
             for (int i=0; i<4; i++) muses[whichMuse].horseshoe[i] = (int)(theOscMessage.get(i).doubleValue());
           } 
           
-          // forward message as INTS
+          // horseshoe is always the last message coming from mind-monitor
+          // use this trigger to forward all new data as one bundle together
           if(enableForwarding) {
-            OscMessage m = new OscMessage(patternReplace[whichMuse] + "/horseshoe");
-            for (int i=0; i<4; i++) m.add(muses[whichMuse].horseshoe[i]);
-            oscP5.send(m, myNetAddressList);
+            forwardBundle(whichMuse);
           }
         } 
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/elements/touching_forehead")) {
           //println("touching_forehead "+theOscMessage.typetag());
           muses[whichMuse].touching_forehead = theOscMessage.get(0).intValue();
-          
-          if(enableForwarding) {
-            OscMessage m = new OscMessage(patternReplace[whichMuse] + "/forehead");
-            m.add(muses[whichMuse].touching_forehead);
-            oscP5.send(theOscMessage, myNetAddressList);
-          }
         } 
         
         else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/batt")) {
@@ -400,6 +406,14 @@ void oscEvent(OscMessage theOscMessage) {
             m.add(muses[whichMuse].batt);
             oscP5.send(m, myNetAddressList);
           }
+        }
+        
+        else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/algorithm/mellow")) {
+          muses[whichMuse].mellow = (int) theOscMessage.get(0).floatValue();
+        } 
+        
+        else if (theOscMessage.addrPattern().equals(patternMuse[whichMuse] + "/algorithm/concentration")) {
+          muses[whichMuse].concentration = (int) theOscMessage.get(0).floatValue();
         }
         
         
@@ -443,31 +457,7 @@ void oscEvent(OscMessage theOscMessage) {
             muses[whichMuse].calcRelative();
             // count the signal cnt one up, every time there's a gamma signal
             muses[whichMuse].signal_cnt++;
-            
-            if(enableForwarding) {
-              // forward all averages now
-              OscBundle myBundle = new OscBundle();
-              OscMessage m = new OscMessage("/init");
-              for(int b=0; b<5; b++) {
-                m.setAddrPattern(patternReplace[whichMuse] + museEEGaddress[b]);
-                m.add(muses[whichMuse].relative_avg[b]);
-                myBundle.add(m);
-                m.clear();
-                //oscP5.send(m, myNetAddressList);
-              }
-              if(broadcastAbsolute) {
-                for(int b=0; b<5; b++) {
-                  m.setAddrPattern(patternReplace[whichMuse] + museEEGaddress[b] +"/absolute");
-                  m.add(muses[whichMuse].absolute_avg[b]);
-                  myBundle.add(m);
-                  m.clear();
-                  //oscP5.send(m, myNetAddressList);
-                }
-              }
-              myBundle.setTimetag(myBundle.now() + 10000);
-              oscP5.send(myBundle, myNetAddressList);
-            }
-            
+  
           }
         }
         
@@ -504,6 +494,56 @@ void oscEvent(OscMessage theOscMessage) {
     }
   
   }
+}
+
+
+void forwardBundle(int whichMuse) {
+
+  // forward all averages now
+  OscBundle myBundle = new OscBundle();
+  
+  OscMessage m = new OscMessage(patternReplace[whichMuse] + "/horseshoe");
+  for (int i=0; i<4; i++) m.add(muses[whichMuse].horseshoe[i]);
+  myBundle.add(m);
+  m.clear();
+  
+  m.setAddrPattern(patternReplace[whichMuse] + "/forehead");
+  m.add(muses[whichMuse].touching_forehead);
+  myBundle.add(m);
+  m.clear();
+  
+  for(int b=0; b<5; b++) {
+    m.setAddrPattern(patternReplace[whichMuse] + museEEGaddress[b]);
+    m.add(muses[whichMuse].relative_avg[b]);
+    myBundle.add(m);
+    m.clear();
+  }
+  if(broadcastAbsolute) {
+    for(int b=0; b<5; b++) {
+      m.setAddrPattern(patternReplace[whichMuse] + museEEGaddress[b] +"/absolute");
+      m.add(muses[whichMuse].absolute_avg[b]);
+      myBundle.add(m);
+      m.clear();
+    }
+  }
+  
+  if(displayAlg) {
+    // the 'mellow' and 'concentration' values from Mind-Monitor are not very satisfactory
+    // see https://mind-monitor.com/FAQ.php
+    m.setAddrPattern(patternReplace[whichMuse] + "/mellow");
+    m.add(muses[whichMuse].mellow);
+    myBundle.add(m);
+    m.clear();
+    
+    m.setAddrPattern(patternReplace[whichMuse] + "/concentration");
+    m.add(muses[whichMuse].concentration);
+    myBundle.add(m);
+    m.clear();
+  }
+  
+  myBundle.setTimetag(myBundle.now() + 10000);
+  oscP5.send(myBundle, myNetAddressList);
+
 }
 
 

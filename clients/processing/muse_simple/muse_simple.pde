@@ -11,10 +11,10 @@ import netP5.*;
 
 /*********************NETWORK SETTINGS**************************/
 // CHANGE THE IP ADDRESS TO THE IP ADDRESS OF THE OSC SERVER !!
-String broadcastIP = "10.0.0.4";
+String broadcastIP = "192.168.0.100";
 
 // CHANGE TO THE OSC PATTERN OF THE MUSE YOU WANT TO DISPLAY
-String patternMuse = "/Person1";
+String patternMuse = "/Person2";
 
 OscP5 oscP5;
 NetAddress myBroadcastLocation; 
@@ -29,6 +29,11 @@ int listeningPort = 12000;
 int museBattery = 0;
 int museStatus[];
 float museFrequencyBands[];
+
+// the 'mellow' and 'concentration' values from Mind-Monitor are not very satisfactory
+// see https://mind-monitor.com/FAQ.php
+int mellow = 0;
+int concentration = 0;
 
 String[] museEEGwave = { "Delta", "Theta", "Alpha", "Beta", "Gamma"};
 String[] museEEGhz = { "1-4", "5-8", "9-13", "13-30", "30-50" };
@@ -94,12 +99,15 @@ void draw() {
   text("MUSE_SIMPLE", 20,20);
   
   text("muse", 460,20);
-  text(patternMuse, 600, 20);
+  text(patternMuse, 650, 20);
   text("battery", 460,50);
-  text(museBattery + " %", 600, 50);
+  text(museBattery + " %", 650, 50);
   text("status", 460,80);
-  text(museStatus[0]+" "+museStatus[1]+" "+museStatus[2]+" "+museStatus[3], 600, 80);
-  
+  text(museStatus[0]+" "+museStatus[1]+" "+museStatus[2]+" "+museStatus[3], 650, 80);
+  //text("mellow", 460,110);
+  //text(mellow, 650, 110);
+  //text("concentration", 460,140);
+  //text(concentration, 650, 140);
   
   
   // draw frequency bins
@@ -147,6 +155,14 @@ void oscEvent(OscMessage theOscMessage) {
   
   else if (addp.equals("/horseshoe")) {
     for (int i=0; i<4; i++) museStatus[i] = theOscMessage.get(i).intValue();  
+  } 
+  
+  else if (addp.equals("/mellow")) {
+    mellow = theOscMessage.get(0).intValue();
+  } 
+  
+  else if (addp.equals("/concentration")) {
+    mellow = theOscMessage.get(0).intValue();
   } 
   
   else if (addp.equals("/delta")) {
