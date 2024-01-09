@@ -32,7 +32,7 @@ import netP5.*;
 String[] patternMuse = { "/phone1/muse", "/phone2/muse", "/phone3/muse", "/phone4/muse", "/tablet5/muse", "/tablet6/muse" };
 String[] patternReplace = { "/Person1", "/Person2", "/Person3", "/Person4", "/Person5", "/Person6" };
 
-String myIP = "192.168.0.100";
+String myIP = "192.168.0.102";
 
 
 
@@ -294,7 +294,8 @@ void draw() {
     
     y+=20;
     text(muses[i].signal_lastsec+"Hz", x, y+=20);
-    if(incomingDataMuse[i]) text("DATA", x, y+=20);
+    y+=20;
+    if(incomingDataMuse[i]) text("DATA", x, y);
 
     // i don't think this works
     if (muses[i].blink) {
@@ -308,7 +309,7 @@ void draw() {
 
 
   x = 10;
-  y+=100;
+  y+=50;
   
   fill(255,0,0);
   textSize(32);
